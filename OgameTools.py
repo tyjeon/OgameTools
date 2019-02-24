@@ -23,16 +23,24 @@ def OgameTools(URL,loginid,loginpw):
 
 def prepareWebdriver():
     headlessMode = 0
-    if(headlessMode == 1):
-        options = webdriver.ChromeOptions()
+    proxyMode = 0
+    
+    options = webdriver.ChromeOptions()
+
+    if headlessMode == 1:
         options.add_argument('headless')
         options.add_argument('window-size=1920x1080')
         options.add_argument("--disable-gpu")
         options.add_argument("user-agent=Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36")
         options.add_argument("--lang=en-us")
-        browser = webdriver.Chrome(chrome_options=options)
-    else:
-        browser = webdriver.Chrome()
+
+    if proxyMode == 1:
+        # https://www.hide-my-ip.com/proxylist.shtml
+        # Type:HTTPS, Anon:High, 그리고 속도 빠른 걸로 선택.
+        PROXY = "5.135.164.72:3128"
+        options.add_argument('--proxy-server=%s' % PROXY)
+        
+    browser = webdriver.Chrome(chrome_options=options)
 
     return browser
 
@@ -92,7 +100,7 @@ def loopGalaxy(browser):
                         periodOfScraping = momentWhenScrapingSystemEnds - momentWhenScrapingSystemStarts
                         print(str(i)+":"+str(j)+"/9:499 "+str(periodOfScraping)+" Sec")
                         break
-        if i == 1 :
+        if i == 1:
             filename = ""
             filename = setCsvTitleRow()
 
@@ -199,7 +207,7 @@ def isDifferentFromOtherSource(currentSystem,previousSystem):
             break
 
         if int(i) == int(len(planetName1)): # i == 15일 경우
-            return 1:
+            return 1
         
     
     return 0 # 다른 게 하나도 없다면 0을 반환.
