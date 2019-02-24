@@ -1,30 +1,53 @@
 from bs4 import BeautifulSoup 
 from operator import eq
 import re
+import datetime
 
 def ParseHtmlFile():
 #TODO 나중에 OgameTools에 합침.
-        # 소스 가져오고 종료
+
+        planetName = []
+        planetGalaxy = []
+        planetSystem = []
+        planetNumber = []
+        playerName = []
+        metal = []
+        crystal = []
+        deuterium = []
+        numberOfLargeCargo = []
+        numberOfLargeCargo5x = []
+        totalResources = []
+        defence = []
+        fleets = []
+        
         with open("mailCrawl.html",encoding="utf-8") as fp:
             bsObject = BeautifulSoup(fp, "html.parser")
             
         mailsSource = bsObject.findAll("li",{"class":"msg"})
-
         for mailSource in mailsSource:
             
-            getPlanetName(mailSource)
-            getPlanetGalaxy(mailSource)
-            getPlanetSystem(mailSource)
-            getPlanetNumber(mailSource)
-            getData(mailSource,"  ") # 플레이어명
+            planetName.append(getPlanetName(mailSource))
+            planetGalaxy.append(getPlanetGalaxy(mailSource))
+            planetSystem.append(getPlanetSystem(mailSource))
+            planetNumber.append(getPlanetNumber(mailSource))
+            playerName.append(getPlayerName(mailSource))
             
-            getData(mailSource,"Metal: ")
-            getData(mailSource,"Crystal: ")
-            getData(mailSource,"Deuterium: ")
-            print(int(float(getData(mailSource,"Resources: "))/250000)) # 카르고 대 숫자 - 5대 단위로 끊어서
-            getData(mailSource,"Resources: ")
-            getData(mailSource,"Defence: ")
-            getData(mailSource,"Fleets: ")
+            metal.append(getData(mailSource,"Metal: "))
+            crystal.append(getData(mailSource,"Crystal: "))
+            deuterium.append(getData(mailSource,"Deuterium: "))
+            numberOfLargeCargo.append(int(float(getData(mailSource,"Resources: "))/50000))
+            numberOfLargeCargo5x.append(int(float(getData(mailSource,"Resources: "))/250000)) # 카르고 대 숫자- 5대 단위로 끊어서
+            totalResources.append(getData(mailSource,"Resources: "))
+            defence.append(getData(mailSource,"Defence: "))
+            fleets.append(getData(mailSource,"Fleets: "))
+
+        filename = ""
+        filename = setEspionageCsvTitleRow()   
+        for i in range(len(planetName)):
+                with open(filename, encoding="utf-8",mode='a+') as f:
+                        print(",".join([planetName[i],planetGalaxy[i],planetSystem[i],planetNumber[i],playerName[i],\
+                                        metal[i],crystal[i],deuterium[i],str(numberOfLargeCargo[i]),str(numberOfLargeCargo5x[i]),\
+                                        totalResources[i],defence[i],fleets[i]]),file=f)
 
 def getPlanetName(mailSource):
     planetName = ""
@@ -58,6 +81,14 @@ def getPlanetNumber(mailSource):
 
     return planetNumber
 
+def getPlayerName(mailSource):
+    playerName = ""
+    playerNameInHtml = str(mailSource.find("span",{"class":re.compile("status_*")}))
+    playerNameInHtml = re.sub(pattern="\n", repl="",string=playerNameInHtml)
+    playerNameInHtml = re.sub(pattern="(<span.*\">|<\/span>)", repl="",string=playerNameInHtml)
+    playerName = playerNameInHtml.strip()
+
+    return playerName
 
 def getData(mailSource, string):
     data = ""
@@ -73,5 +104,21 @@ def NoneToBlank(string):
                 return ""
         else:
                 return string
+
+def setEspionageCsvTitleRow():
+    today = datetime.datetime.today()
+    year = str(today.year)
+    month = str(today.month)
+    day = str(today.day)
+    hour = str(today.hour)
+    minute = str(today.minute)
+    second = str(today.second)
+
+    filename = "Espionage_"+year+"_"+month+"_"+day+"_"+hour+"_"+minute+".csv"
+
+    with open(filename, encoding="utf-8",mode='a+') as f:
+        print("Planet,Gal,Sys,Pla,Player,Metal,Crystal,Deuterium,LargeCargo,LargeCargo5x,Resources,Defence,Fleets",file=f)
+
+    return filename
 
 ParseHtmlFile()
