@@ -7,16 +7,18 @@ import time
 import re
 from operator import eq
 import datetime
+import csv
 
 def OgameTools(URL,loginid,loginpw):
     browser = prepareWebdriver()
     loginOgame(browser,URL,loginid,loginpw)
-
+    time.sleep(2)
     choice = 0
     while(choice!=8):
  
-        choice = input("작업 입력\n5 : 갤럭시툴\n8 : 종료\n--> ")
-        
+        choice = input("작업 입력\n1 : 정찰\n5 : 갤럭시툴\n8 : 종료\n--> ")
+        if(int(choice)==1):
+            espionage(browser)
         if(int(choice)==5):
             enterGalaxyTab(browser)
             loopGalaxy(browser)
@@ -47,17 +49,46 @@ def prepareWebdriver():
 def loginOgame(browser,URL,loginid,loginpw):
     print("로그인")
     browser.get(URL)
-    WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-1")))
+    WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-1")))
     browser.find_element_by_css_selector("#ui-id-1").click()
-    WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#usernameLogin")))
+    WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#usernameLogin")))
     browser.find_element_by_css_selector("#usernameLogin").send_keys(loginid)
     browser.find_element_by_css_selector("#passwordLogin").send_keys(loginpw)
     browser.find_element_by_css_selector("#loginSubmit").click()
-    WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#joinGame > a > button > span")))
+    print("로비 입장")
+    WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#joinGame > a > button > span")))
     browser.find_element_by_css_selector("#joinGame > a > button > span").click()
-    time.sleep(3)
+    print("게임으로 들어가는 중")
+    WebDriverWait(browser, 15).until(EC.presence_of_element_located\
+                                     ((By.CSS_SELECTOR,"#accountlist > div > div.rt-table > div.rt-tbody > div > div > div.rt-td.action-cell > button")))
     browser.find_element_by_css_selector("#accountlist > div > div.rt-table > div.rt-tbody > div > div > div.rt-td.action-cell > button").click()
     print("완료")
+
+def espionage(browser):
+    galaxyCoordinate = []
+    systemCoordinate = []
+    planetNumberCoordinate = []
+    with open('espionage.csv', 'r') as r:
+        csvContent=csv.reader(r)
+        for row in csvContent:
+            galaxyCoordinate.append(row[0])
+            systemCoordinate.append(row[1])
+            planetNumberCoordinate.append(row[2])
+        
+    enterGalaxyTab(browser)
+    
+    for i in range(1,len(galaxyCoordinate)):
+        while(True):
+            source = browser.page_source
+            moveToCoordinate(browser,galaxyCoordinate[i],systemCoordinate[i])
+            if isIValueSameAsGalaxy(source, galaxyCoordinate[i]):
+                if isJValueSameAsSystem(source, systemCoordinate[i]):
+                  break
+        browser.find_element_by_css_selector("#galaxytable > tbody > tr:nth-child("+str(planetNumberCoordinate[i])+\
+                                             ") > td.action > span > a.tooltip.js_hideTipOnMobile.espionage > span").click()
+        print("진행중 : "+str(i)+"/"+str(len(galaxyCoordinate)-1))
+        if int(i) == int(len(galaxyCoordinate)-1) :
+            print("완료")
 
 def enterGalaxyTab(browser):
         print("Galaxy 이동")
@@ -72,10 +103,10 @@ def loopGalaxy(browser):
         if(i>=2):
             while(True):
                 if isIValueDifferentFromGalaxy(source[j-1],i):
-                    moveToFirstSystemOfGalaxy(browser,i)
+                    moveToCoordinate(browser,i,1)
                     break
         else:
-            moveToFirstSystemOfGalaxy(browser,1)
+            moveToCoordinate(browser,1,1)
 
         source = []
         for j in range(1,500):
@@ -107,9 +138,9 @@ def loopGalaxy(browser):
         for j in range(1,500):
             ParseOgameHtml(source[j-1],i,j,filename)
 
-def moveToFirstSystemOfGalaxy(browser,galaxyNumber):
+def moveToCoordinate(browser,galaxyNumber,systemNumber):
     browser.find_element_by_css_selector("#galaxy_input").send_keys(galaxyNumber)
-    browser.find_element_by_css_selector("#system_input").send_keys("1")
+    browser.find_element_by_css_selector("#system_input").send_keys(systemNumber)
     browser.find_element_by_css_selector("#galaxyHeader > form > div:nth-child(9)").click()
 
 def moveSystem(browser,systemNumber):
@@ -131,6 +162,21 @@ def setCsvTitleRow():
         print("Gal,Sys,Pla,PlanetName,Moon,UserName,UserRank,AllianceName,AllianceRank,AllianceMember,Vacation,Inactive,LongInactive,Recyclers",file=f)
 
     return filename
+
+def isIValueSameAsGalaxy(source, i):
+    isSame = 0
+    bsObject = BeautifulSoup(source, "html.parser")
+
+    galaxyValue = str(bsObject.find("div",{"id":"mobileDiv"}))
+    galaxyValue = re.sub(pattern="\n", repl="",string=galaxyValue)
+    galaxyValue = re.sub(pattern=".*data-galaxy=\"|\".*", repl="",string=galaxyValue)
+
+    if int(galaxyValue) == int(i):
+        isSame = 1
+    else:
+        isSame = 0
+
+    return isSame
 
 def isIValueDifferentFromGalaxy(source, i):
     bsObject = BeautifulSoup(source, "html.parser")
@@ -203,7 +249,7 @@ def isDifferentFromOtherSource(currentSystem,previousSystem):
             return 1
 
     for i in range(len(planetName1)): # 두 시스템이 연달아 텅 비어 있을 경우.
-        if planetName[i]!="":
+        if planetName1[i]!="":
             break
 
         if int(i) == int(len(planetName1)): # i == 15일 경우
