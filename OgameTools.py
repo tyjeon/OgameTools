@@ -136,7 +136,7 @@ def loopGalaxy(browser):
             filename = setCsvTitleRow()
 
         for j in range(1,500):
-            ParseOgameHtml(source[j-1],i,j,filename)
+            parseOgameGalaxySource(source[j-1],i,j,filename)
 
 def moveToCoordinate(browser,galaxyNumber,systemNumber):
     browser.find_element_by_css_selector("#galaxy_input").send_keys(galaxyNumber)
@@ -259,7 +259,7 @@ def isDifferentFromOtherSource(currentSystem,previousSystem):
     return 0 # 다른 게 하나도 없다면 0을 반환.
 
 
-def ParseOgameHtml(html,galaxyNumber,systemNumber,filename):
+def parseOgameGalaxySource(html,galaxyNumber,systemNumber,filename):
 
         bsObject = BeautifulSoup(html, "html.parser")
             
