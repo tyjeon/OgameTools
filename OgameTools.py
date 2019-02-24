@@ -156,7 +156,7 @@ def setCsvTitleRow():
     minute = str(today.minute)
     second = str(today.second)
 
-    filename = year+month+day+"_"+hour+"_"+minute+".csv"
+    filename = "Galaxy_"+year+"_"+month+"_"+day+"_"+hour+"_"+minute+".csv"
     
     with open(filename, encoding="utf-8",mode='a+') as f:
         print("Gal,Sys,Pla,PlanetName,Moon,UserName,UserRank,AllianceName,AllianceRank,AllianceMember,Vacation,Inactive,LongInactive,Recyclers",file=f)
