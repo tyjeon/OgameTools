@@ -11,6 +11,8 @@ import csv
 
 #TODO 아직 mailtocsv 페이지 넘어가는거 실험 안 해봄. 작동은 잘 함.
 #TODO 정찰하는 기능 이미 정찰한 경우 셀렉터가 바뀜. 셀레니움으로 셀렉터 체크하는거 알아봐야겠다.
+    # --> 셀렉터 체크는 그냥 isThereIcon = browser.find_element_by_css_selector([CSS셀렉터링크]) 이렇게 한 다음에
+    # isThereIcon이 찾아낸 게 아무것도 없는가? 뭔가 찾아내었는가를 If문으로 알아내면 된다.
 
 def OgameTools(URL,loginid,loginpw):
     browser = prepareWebdriver()
