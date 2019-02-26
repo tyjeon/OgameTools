@@ -11,6 +11,7 @@ import datetime
 import csv
 import os
 
+
 def OgameTools(URL,loginid,loginpw):
     browser = prepareWebdriver()
     loginOgame(browser,URL,loginid,loginpw)
@@ -24,6 +25,8 @@ def OgameTools(URL,loginid,loginpw):
             espionage(browser)
         if int(choice) == 2:
             mailToCsv(browser)
+        if int(choice) == 3:
+            autoAttack(browser)
         if int(choice) == 5:
             enterGalaxyTab(browser)
             loopGalaxy(browser)
@@ -265,12 +268,50 @@ def setEspionageCsvTitleRow():
 
     return filename
 
-def enterGalaxyTab(browser):
-        print("Galaxy 메뉴로 이동")
-        time.sleep(3)
+def autoAttack(browser):
+    enterFleetTab(browser)
 
-        browser.find_element_by_css_selector("#menuTable > li:nth-child(9) > a").click()
-        time.sleep(3)
+def enterFleetTab(browser):
+    print("Fleet 메뉴로 이동")
+    time.sleep(3)
+
+    browser.find_element_by_css_selector("#menuTable > li:nth-child(8) > a > span").click()
+    time.sleep(3)
+
+    selectFleet(browser)
+
+def selectFleet(browser):
+    # csv에서 파일을 받아온 뒤, 카대 숫자를 입력하면 된다.
+    # #ship_203 카대 숫자 입력칸. 
+    # #ship_210 정위 숫자 입력칸.
+
+    print("함대 선택")
+    browser.find_element_by_css_selector("#ship_210").send_keys("2")
+
+    time.sleep(random.randrage(10,20)*0.1)
+    browser.find_element_by_css_selector("#continue > span").click()
+
+    enterCoordinates(browser)
+
+def enterCoordinates(browser):
+    print("좌표 입력")
+    browser.find_element_by_css_selector("#galaxy").send_keys("2")
+    browser.find_element_by_css_selector("#system").send_keys("2")
+    browser.find_element_by_css_selector("#position").send_keys("2")
+    browser.find_element_by_css_selector("#continue > span").click()
+    sendFleet(browser)
+
+def sendFleet(browser):
+    browser.find_element_by_css_selector("#missionButton1").click()
+    browser.find_element_by_css_selector("#start > span").click()
+    print("공격 미션 수행")
+
+def enterGalaxyTab(browser):
+    print("Galaxy 메뉴로 이동")
+    time.sleep(3)
+
+    browser.find_element_by_css_selector("#menuTable > li:nth-child(9) > a").click()
+    time.sleep(3)
 
 def loopGalaxy(browser):
     for i in range(1,10): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
