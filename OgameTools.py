@@ -183,70 +183,49 @@ def mailToCsv(browser):
                                         totalResources[j],defence[j],fleets[j]]),file=f)
             
 def getCurrentPageNumber(bsObject):
-    pageNumberSource = str(bsObject.find("li",{"class":"curPage"}))
-    pageNumberSource = re.sub(pattern="\n", repl="",string=pageNumberSource)
-    totalPage = re.sub(pattern="(.*data-tab=\"\d*\">|\/.*)", repl="",string=pageNumberSource)
+    argumentsForParsing=[bsObject,["li","class","curPage"],"(.*data-tab=\"\d*\">|\/.*)"]
+    return parseUsingRegExp(argumentsForParsing)
 
-    return totalPage
-    
 def getTotalPageNumber(bsObject):
-    pageNumberSource = str(bsObject.findAll("li",{"class":"curPage"}))
-    pageNumberSource = re.sub(pattern="\n", repl="",string=pageNumberSource)
-    totalPage = re.sub(pattern="(.*data-tab=\"\d*\">\d*\/|<\/li>.*)", repl="",string=pageNumberSource)
-
-    return totalPage
+    argumentsForParsing=[bsObject,["li","class","curPage"],"(.*data-tab=\"\d*\">\d*\/|<\/li>.*)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getPlanetNameInMail(mailSource):
-    planetName = ""
-    planetNameInHtml = str(mailSource.find("span",{"class":"msg_title blue_txt"}))
-    planetNameInHtml = re.sub(pattern="\n", repl="",string=planetNameInHtml)
-    planetName = re.sub(pattern="(.*figure>| .*)", repl="",string=planetNameInHtml)
-
-    return planetName
+    argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*figure>| .*)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getPlanetGalaxyInMail(mailSource):
-    planetGalaxy = ""
-    planetGalaxyInHtml = str(mailSource.find("span",{"class":"msg_title blue_txt"}))
-    planetGalaxyInHtml = re.sub(pattern="\n", repl="",string=planetGalaxyInHtml)
-    planetGalaxy = re.sub(pattern="(.*\[|:.*)", repl="",string=planetGalaxyInHtml)
-    
-    return planetGalaxy
+    argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*\[|:.*)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getPlanetSystemInMail(mailSource):
-    planetSystem = ""
-    planetSystemInHtml = str(mailSource.find("span",{"class":"msg_title blue_txt"}))
-    planetSystemInHtml = re.sub(pattern="\n", repl="",string=planetSystemInHtml)
-    planetSystem = re.sub(pattern="(.*\[\d+:|:\d+].*)", repl="",string=planetSystemInHtml)
-
-    return planetSystem
-
+    argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*\[\d+:|:\d+].*)"]
+    return parseUsingRegExp(argumentsForParsing)
+    
 def getPlanetNumberInMail(mailSource):
-    planetNumber = ""
-    planetNumberInHtml = str(mailSource.find("span",{"class":"msg_title blue_txt"}))
-    planetNumberInHtml = re.sub(pattern="\n", repl="",string=planetNumberInHtml)
-    planetNumber = re.sub(pattern="(.*:|\].*)", repl="",string=planetNumberInHtml)
-
-    return planetNumber
+    argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*:|\].*)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getPlayerNameInMail(mailSource):
-    playerName = ""
-    playerNameInHtml = str(mailSource.find("span",{"class":re.compile("status_*")}))
-    playerNameInHtml = re.sub(pattern="\n", repl="",string=playerNameInHtml)
-    playerNameInHtml = re.sub(pattern="(<span.*\">|<\/span>)", repl="",string=playerNameInHtml)
-    playerName = playerNameInHtml.strip()
-
-    return playerName
+    argumentsForParsing=[mailSource,["span","class",re.compile("status_*")],"(<span.*\">|<\/span>)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getDataInMail(mailSource, string):
-    data = ""
-    dataInHtml = str(mailSource.find("span",{"class":"msg_content"}))
-    dataInHtml = re.sub(pattern="\n", repl="",string=dataInHtml)
-    dataInHtml = re.sub(pattern="(.*"+string+"|<\/span>.*)|\.", repl="",string=dataInHtml)
+    argumentsForParsing=[mailSource,["span","class",re.compile("msg_content")],"(.*"+string+"|<\/span>.*)|\."]
+    dataInHtml = parseUsingRegExp(argumentsForParsing)
+    
     if "compacting" in dataInHtml: # 정탐 레벨 낮음
         data = "Low_Espionage_Level"
     else:
         data = NoneToBlank(dataInHtml)
         
+    return data
+
+def parseUsingRegExp(argumentsForParsing):
+    dataSource = str(argumentsForParsing[0].find(argumentsForParsing[1][0],{argumentsForParsing[1][1]:argumentsForParsing[1][2]}))
+    dataSource = re.sub(pattern="\n", repl="",string=dataSource)
+    dataSource = str(re.sub(pattern=argumentsForParsing[2], repl="",string=dataSource))
+    data = NoneToBlank(data)
     return data
 
 def setEspionageCsvTitleRow():
