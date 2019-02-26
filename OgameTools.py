@@ -20,7 +20,7 @@ def OgameTools(URL,loginid,loginpw):
     choice = 0
     while(choice!=8):
         cls()
-        choice = input("작업 입력\n1 : 정찰\n2 : 정찰 내용을 Csv로 저장\n5 : 갤럭시툴\n8 : 종료\n--> ")
+        choice = input("작업 입력\n1 : 정찰\n2 : 정찰 내용을 Csv로 저장\n3 : 자동공격\n5 : 갤럭시툴\n8 : 종료\n--> ")
         if int(choice) == 1:
             espionage(browser)
         if int(choice) == 2:
@@ -29,7 +29,6 @@ def OgameTools(URL,loginid,loginpw):
             autoAttack(browser)
         if int(choice) == 5:
             enterGalaxyTab(browser)
-            loopGalaxy(browser)
         if int(choice) == 8:
            browser.quit()
            break
@@ -313,6 +312,8 @@ def enterGalaxyTab(browser):
     browser.find_element_by_css_selector("#menuTable > li:nth-child(9) > a").click()
     time.sleep(3)
 
+    loopGalaxy(browser)
+
 def loopGalaxy(browser):
     for i in range(1,10): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
         if(i>=2):
@@ -340,8 +341,8 @@ def loopGalaxy(browser):
                                 
                     if isJValueDifferentFromSystem(source[j-1],j):
                         moveSystem(browser,j)
-                                
-                    if(isDifferentFromOtherSource(source[j-1],source[j-2])):
+
+                    if isIValueSameAsGalaxy(source[j-1],i) and isJValueSameAsSystem(source[j-1],j):
                         momentWhenScrapingSystemEnds = time.time()
                         periodOfScraping = momentWhenScrapingSystemEnds - momentWhenScrapingSystemStarts
                         print(str(i)+":"+str(j)+"/9:499 "+str(periodOfScraping)+" Sec")
@@ -436,43 +437,6 @@ def isJValueDifferentFromSystem(source,j):
         isDifferent = 0
 
     return isDifferent
-
-def isDifferentFromOtherSource(currentSystem,previousSystem):
-    planetNameInHtml = ""
-    planetName1 = []
-    planetName2 = []
-
-    bsObject1 = BeautifulSoup(currentSystem, "html.parser")
-    bsObject2 = BeautifulSoup(previousSystem, "html.parser")
-
-    for planet in bsObject1.findAll("tr",{"class":re.compile("^row.*")}):
-        planetNameInHtml = str(planet.find("div",{"id":re.compile("planet\d+")}))
-        planetNameInHtml = re.sub(pattern="\n", repl="",string=planetNameInHtml)
-        planetNameInHtml = re.sub(pattern="(.*textNormal\">|<\/span.*div>)", repl="",string=planetNameInHtml)
-        planetNameInHtml = NoneToBlank(planetNameInHtml)
-        planetName1.append(planetNameInHtml)
-
-    for planet in bsObject2.findAll("tr",{"class":re.compile("^row.*")}):
-        planetNameInHtml = str(planet.find("div",{"id":re.compile("planet\d+")}))
-        planetNameInHtml = re.sub(pattern="\n", repl="",string=planetNameInHtml)
-        planetNameInHtml = re.sub(pattern="(.*textNormal\">|<\/span.*div>)", repl="",string=planetNameInHtml)
-        planetNameInHtml = NoneToBlank(planetNameInHtml)
-        planetName2.append(planetNameInHtml)
-
-    for i in range(len(planetName1)):
-        if planetName1[i]!=planetName2[i]:
-            return 1
-
-    for i in range(len(planetName1)): # 두 시스템이 연달아 텅 비어 있을 경우.
-        if planetName1[i]!="":
-            break
-
-        if int(i) == int(len(planetName1)): # i == 15일 경우
-            return 1
-        
-    
-    return 0 # 다른 게 하나도 없다면 0을 반환.
-
 
 def parseOgameGalaxySource(html,galaxyNumber,systemNumber,filename):
 
