@@ -9,11 +9,9 @@ import re
 from operator import eq
 import datetime
 import csv
+import os
 
-#TODO 아직 mailtocsv 페이지 넘어가는거 실험 안 해봄. 작동은 잘 함.
-#TODO 정찰하는 기능 이미 정찰한 경우 셀렉터가 바뀜. 셀레니움으로 셀렉터 체크하는거 알아봐야겠다.
-    # --> 셀렉터 체크는 그냥 isThereIcon = browser.find_element_by_css_selector([CSS셀렉터링크]) 이렇게 한 다음에
-    # isThereIcon이 찾아낸 게 아무것도 없는가? 뭔가 찾아내었는가를 If문으로 알아내면 된다.
+#TODO 아직 mailtocsv 페이지 넘어가는거 실험 안 해봄. 메일좀 쌓아 놓고 해봐야지.
 
 def OgameTools(URL,loginid,loginpw):
     browser = prepareWebdriver()
@@ -21,7 +19,7 @@ def OgameTools(URL,loginid,loginpw):
     time.sleep(2)
     choice = 0
     while(choice!=8):
- 
+        cls()
         choice = input("작업 입력\n1 : 정찰\n2 : 정찰 내용을 Csv로 저장\n5 : 갤럭시툴\n8 : 종료\n--> ")
         if(int(choice)==1):
             espionage(browser)
@@ -71,7 +69,10 @@ def loginOgame(browser,URL,loginid,loginpw):
                                      ((By.CSS_SELECTOR,"#accountlist > div > div.rt-table > div.rt-tbody > div > div > div.rt-td.action-cell > button")))
     browser.find_element_by_css_selector("#accountlist > div > div.rt-table > div.rt-tbody > div > div > div.rt-td.action-cell > button").click()
     print("완료   4/4")
-
+    
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
+    
 def espionage(browser):
 
     checkForCsvFile = 0
