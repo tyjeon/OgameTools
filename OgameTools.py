@@ -11,23 +11,25 @@ import datetime
 import csv
 import os
 
-#TODO 아직 mailtocsv 페이지 넘어가는거 실험 안 해봄. 메일좀 쌓아 놓고 해봐야지.
-
 def OgameTools(URL,loginid,loginpw):
     browser = prepareWebdriver()
     loginOgame(browser,URL,loginid,loginpw)
     time.sleep(2)
+    browser.switch_to.window(browser.window_handles[-1])
     choice = 0
     while(choice!=8):
         cls()
         choice = input("작업 입력\n1 : 정찰\n2 : 정찰 내용을 Csv로 저장\n5 : 갤럭시툴\n8 : 종료\n--> ")
-        if(int(choice)==1):
+        if int(choice) == 1:
             espionage(browser)
-        if(int(choice)==2):
+        if int(choice) == 2:
             mailToCsv(browser)
-        if(int(choice)==5):
+        if int(choice) == 5:
             enterGalaxyTab(browser)
             loopGalaxy(browser)
+        if int(choice) == 8:
+           browser.quit()
+           break
 
 def prepareWebdriver():
     headlessMode = 0
@@ -103,14 +105,14 @@ def espionage(browser):
 
         targetEspionageIcon = browser.find_element_by_xpath("//*[@id=\"galaxytable\"]/tbody/tr["+str(planetNumberCoordinate[i])+"]/td[8]/span/a[1]/span")
         targetEspionageIcon.click()
-        print("정찰 명령 수행 : "+str(i)+"/"+str(len(galaxyCoordinate)-1))
+        print(str(galaxyCoordinate[i])+":"+str(systemCoordinate[i])+":"+str(planetNumberCoordinate[i])+"에 대한 정찰 명령 수행 : "+str(i+1)+"/"+str(len(galaxyCoordinate))+" 완료.")
         time.sleep(random.randrange(10,20)*0.1)
         if int(i) == int(len(galaxyCoordinate)-1) :
             print("완료")
 
    
 def mailToCsv(browser):
-        browser.switch_to.window(browser.window_handles[-1])
+        print("메일함으로 이동")
         browser.get("https://s1-en.ogame.gameforge.com/game/index.php?page=messages")
         WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-23")))
         time.sleep(5)
@@ -131,15 +133,24 @@ def mailToCsv(browser):
 
         source = browser.page_source
         bsObject = BeautifulSoup(source, "html.parser")
-        mailsSource = bsObject.findAll("li",{"class":"msg"})
+        mailsSources = bsObject.findAll("li",{"class":"msg"})
 
         filename = ""
         filename = setEspionageCsvTitleRow()   
 
         totalPage = getTotalPageNumber(bsObject)
         for i in range(0,int(totalPage)):
+
+            while(True):
+                source = browser.page_source
+                bsObject = BeautifulSoup(source, "html.parser")
+                if str(getCurrentPageNumber(bsObject)) == str(i+1):
+                    mailsSources = bsObject.findAll("li",{"class":"msg"})
+                    break
+            
+            print("메일함의 "+str(i+1)+"/"+str(totalPage)+" 페이지 진행 중")
         
-            for mailSource in mailsSource:
+            for mailSource in mailsSources:
                 
                 planetName.append(getPlanetNameInMail(mailSource))
                 planetGalaxy.append(getPlanetGalaxyInMail(mailSource))
@@ -156,22 +167,32 @@ def mailToCsv(browser):
                 defence.append(getDataInMail(mailSource,"Defence: "))
                 fleets.append(getDataInMail(mailSource,"Fleets: "))
 
-            for j in range(len(planetName)):
-                    with open(filename, encoding="utf-8",mode='a+') as f:
-                            print(",".join([planetName[j],planetGalaxy[j],planetSystem[j],planetNumber[j],playerName[j],\
-                                            metal[j],crystal[j],deuterium[j],str(numberOfLargeCargo[j]),str(numberOfLargeCargo5x[j]),\
-                                            totalResources[j],defence[j],fleets[j]]),file=f)
+            print("메일함의 "+str(i+1)+"/"+str(totalPage)+" 페이지 완료.")
+            
             if int(totalPage) != 1:
-                browser.find_element_by_css_selector("#defaultmessagespage > div > ul > ul:nth-child(1) > li:nth-child(4)").click()
+                browser.find_element_by_css_selector("#fleetsgenericpage > ul > ul:nth-child(1) > li:nth-child(4)").click()
                 WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-23")))
                 time.sleep(5)
-            
-def getTotalPageNumber(bsObject):
-        pageNumberSource = str(bsObject.findAll("li",{"class":"curPage"}))
-        pageNumberSource = re.sub(pattern="\n", repl="",string=pageNumberSource)
-        totalPage = re.sub(pattern="(.*data-tab=\"\d*\">\d*\/|<\/li>.*)", repl="",string=pageNumberSource)
 
-        return totalPage
+        for j in range(len(planetName)):
+                with open(filename, encoding="utf-8",mode='a+') as f:
+                        print(",".join([planetName[j],planetGalaxy[j],planetSystem[j],planetNumber[j],playerName[j],\
+                                        metal[j],crystal[j],deuterium[j],str(numberOfLargeCargo[j]),str(numberOfLargeCargo5x[j]),\
+                                        totalResources[j],defence[j],fleets[j]]),file=f)
+            
+def getCurrentPageNumber(bsObject):
+    pageNumberSource = str(bsObject.find("li",{"class":"curPage"}))
+    pageNumberSource = re.sub(pattern="\n", repl="",string=pageNumberSource)
+    totalPage = re.sub(pattern="(.*data-tab=\"\d*\">|\/.*)", repl="",string=pageNumberSource)
+
+    return totalPage
+    
+def getTotalPageNumber(bsObject):
+    pageNumberSource = str(bsObject.findAll("li",{"class":"curPage"}))
+    pageNumberSource = re.sub(pattern="\n", repl="",string=pageNumberSource)
+    totalPage = re.sub(pattern="(.*data-tab=\"\d*\">\d*\/|<\/li>.*)", repl="",string=pageNumberSource)
+
+    return totalPage
 
 def getPlanetNameInMail(mailSource):
     planetName = ""
@@ -219,8 +240,11 @@ def getDataInMail(mailSource, string):
     dataInHtml = str(mailSource.find("span",{"class":"msg_content"}))
     dataInHtml = re.sub(pattern="\n", repl="",string=dataInHtml)
     dataInHtml = re.sub(pattern="(.*"+string+"|<\/span>.*)|\.", repl="",string=dataInHtml)
-    data = NoneToBlank(dataInHtml)
-
+    if "compacting" in dataInHtml: # 정탐 레벨 낮음
+        data = "Low_Espionage_Level"
+    else:
+        data = NoneToBlank(dataInHtml)
+        
     return data
 
 def setEspionageCsvTitleRow():
@@ -234,14 +258,15 @@ def setEspionageCsvTitleRow():
 
     filename = "Espionage_"+year+"_"+month+"_"+day+"_"+hour+"_"+minute+".csv"
 
+    print("파일 생성")
+
     with open(filename, encoding="utf-8",mode='a+') as f:
         print("Planet,Gal,Sys,Pla,Player,Metal,Crystal,Deuterium,LargeCargo,LargeCargo5x,Resources,Defence,Fleets",file=f)
 
     return filename
 
 def enterGalaxyTab(browser):
-        print("Galaxy 이동")
-        browser.switch_to.window(browser.window_handles[-1])
+        print("Galaxy 메뉴로 이동")
         time.sleep(3)
 
         browser.find_element_by_css_selector("#menuTable > li:nth-child(9) > a").click()
