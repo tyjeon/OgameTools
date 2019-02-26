@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
+import random
 import re
 from operator import eq
 import datetime
@@ -74,7 +75,7 @@ def loginOgame(browser,URL,loginid,loginpw):
 def espionage(browser):
 
     checkForCsvFile = 0
-    checkForCsvFile = input("이 작업을 진행하기 위해서는 갤럭시,시스템,행성번호만으로 이루어진(제목 행 불필요) 'espionage.csv' 파일이 필요합니다.\n준비되어 있는 경우 1을 입력하세요.\n-->")
+    checkForCsvFile = input("이 작업을 진행하기 위해서는 갤럭시,시스템,행성번호만으로 이루어진(제목 행 불필요) 'espionage.csv' 파일이 필요합니다.\n준비되어 있는 경우 1을 입력하세요.\n--> ")
 
     if int(checkForCsvFile) != 1:
         return 0
@@ -98,10 +99,11 @@ def espionage(browser):
             if isIValueSameAsGalaxy(source, galaxyCoordinate[i]):
                 if isJValueSameAsSystem(source, systemCoordinate[i]):
                   break
-        browser.find_element_by_css_selector("#galaxytable > tbody > tr:nth-child("+str(planetNumberCoordinate[i])+\
-                                             ") > td.action > span > a.tooltip.js_hideTipOnMobile.espionage > span").click()
-        #galaxytable > tbody > tr.row.strong_filter > td.action > span > a.tooltip.js_hideTipOnMobile.espionage > span
-        print("진행중 : "+str(i)+"/"+str(len(galaxyCoordinate)-1))
+
+        targetEspionageIcon = browser.find_element_by_xpath("//*[@id=\"galaxytable\"]/tbody/tr["+str(planetNumberCoordinate[i])+"]/td[8]/span/a[1]/span")
+        targetEspionageIcon.click()
+        print("정찰 명령 수행 : "+str(i)+"/"+str(len(galaxyCoordinate)-1))
+        time.sleep(random.randrange(10,20)*0.1)
         if int(i) == int(len(galaxyCoordinate)-1) :
             print("완료")
 
