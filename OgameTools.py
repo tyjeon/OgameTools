@@ -35,7 +35,7 @@ def OgameTools(URL,loginid,loginpw):
            break
 
 def prepareWebdriver():
-    headlessMode = 0
+    headlessMode = 1
     proxyMode = 0
     
     options = webdriver.ChromeOptions()
@@ -224,14 +224,6 @@ def getDataInMail(mailSource, string):
     else:
         data = NoneToBlank(dataInHtml)
 
-    print(data)
-    return data
-
-def parseUsingRegExp(argumentsForParsing):
-    dataSource = str(argumentsForParsing[0].find(argumentsForParsing[1][0],{argumentsForParsing[1][1]:argumentsForParsing[1][2]}))
-    dataSource = re.sub(pattern="\n", repl="",string=dataSource)
-    dataSource = str(re.sub(pattern=argumentsForParsing[2], repl="",string=dataSource))
-    data = NoneToBlank(dataSource)
     return data
 
 def setEspionageCsvTitleRow():
@@ -300,7 +292,7 @@ def enterGalaxyTab(browser):
     loopGalaxy(browser)
 
 def loopGalaxy(browser):
-    for i in range(1,10): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
+    for i in range(1,3): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
         if(i>=2):
             while(True):
                 if isIValueDifferentFromGalaxy(source[j-1],i):
@@ -310,7 +302,7 @@ def loopGalaxy(browser):
             moveToCoordinate(browser,1,1)
 
         source = []
-        for j in range(1,500):
+        for j in range(1,3):
             momentWhenScrapingSystemStarts = time.time()
             source.append("")
             if j==1:
@@ -336,7 +328,7 @@ def loopGalaxy(browser):
             filename = ""
             filename = setCsvTitleRow()
 
-        for j in range(1,500):
+        for j in range(1,3):
             parseOgameGalaxySource(source[j-1],i,j,filename)
 
 def moveToCoordinate(browser,galaxyNumber,systemNumber):
@@ -368,9 +360,8 @@ def isIValueSameAsGalaxy(source, i):
     isSame = 0
     bsObject = BeautifulSoup(source, "html.parser")
 
-    galaxyValue = str(bsObject.find("div",{"id":"mobileDiv"}))
-    galaxyValue = re.sub(pattern="\n", repl="",string=galaxyValue)
-    galaxyValue = re.sub(pattern=".*data-galaxy=\"|\".*", repl="",string=galaxyValue)
+    argumentsForParsing=[bsObject,["div","id","mobileDiv"],".*data-galaxy=\"|\".*"]
+    galaxyValue = parseUsingRegExp(argumentsForParsing)
 
     if int(galaxyValue) == int(i):
         isSame = 1
@@ -382,9 +373,8 @@ def isIValueSameAsGalaxy(source, i):
 def isIValueDifferentFromGalaxy(source, i):
     bsObject = BeautifulSoup(source, "html.parser")
 
-    galaxyValue = str(bsObject.find("div",{"id":"mobileDiv"}))
-    galaxyValue = re.sub(pattern="\n", repl="",string=galaxyValue)
-    galaxyValue = re.sub(pattern=".*data-galaxy=\"|\".*", repl="",string=galaxyValue)
+    argumentsForParsing=[bsObject,["div","id","mobileDiv"],".*data-galaxy=\"|\".*"]
+    galaxyValue = parseUsingRegExp(argumentsForParsing)
 
     if int(galaxyValue) != int(i):
         isDifferent = 1
@@ -397,9 +387,8 @@ def isJValueSameAsSystem(source,j):
     isSame = 0
     bsObject = BeautifulSoup(source, "html.parser")
 
-    systemValue = str(bsObject.find("div",{"id":"mobileDiv"}))
-    systemValue = re.sub(pattern="\n", repl="",string=systemValue)
-    systemValue = re.sub(pattern=".*data-system=\"|\".*", repl="",string=systemValue)
+    argumentsForParsing=[bsObject,["div","id","mobileDiv"],".*data-system=\"|\".*"]
+    systemValue = parseUsingRegExp(argumentsForParsing)
 
     if int(systemValue) == int(j):
         isSame = 1
@@ -412,9 +401,8 @@ def isJValueDifferentFromSystem(source,j):
     isEqual = 0
     bsObject = BeautifulSoup(source, "html.parser")
 
-    systemValue = str(bsObject.find("div",{"id":"mobileDiv"}))
-    systemValue = re.sub(pattern="\n", repl="",string=systemValue)
-    systemValue = re.sub(pattern=".*data-system=\"|\".*", repl="",string=systemValue)
+    argumentsForParsing=[bsObject,["div","id","mobileDiv"],".*data-system=\"|\".*"]
+    systemValue = parseUsingRegExp(argumentsForParsing)
 
     if int(systemValue) != int(j):
         isDifferent = 1
@@ -482,25 +470,16 @@ def NoneToBlank(string):
                 return string
 
 def getPlanetNumber(planetSource):
-    planetNumber = ""
-    planetNumberInHtml = str(planetSource.find("td",{"class":"position js_no_action"}))
-    planetNumberInHtml = re.sub(pattern="(<td class=\"position js_no_action\">|</td>)", repl="",string=planetNumberInHtml)
-    planetNumber = NoneToBlank(planetNumberInHtml)
-    
-    return planetNumber
+    argumentsForParsing=[planetSource,["td","class","position js_no_action"],"(<td class=\"position js_no_action\">|</td>)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getPlanetName(planetSource):
-    planetName = ""
-    planetNameInHtml = str(planetSource.find("div",{"id":re.compile("planet\d+")}))
-    planetNameInHtml = re.sub(pattern="\n", repl="",string=planetNameInHtml)
-    planetNameInHtml = re.sub(pattern="(.*textNormal\">|<\/span.*div>)", repl="",string=planetNameInHtml)
-    planetName = NoneToBlank(planetNameInHtml)
-    
-    return planetName
+    argumentsForParsing=[planetSource,["div","id",re.compile("planet\d+")],"(.*textNormal\">|<\/span.*div>)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getMoon(planetSource):
-    moonStatus = ""
-    isThereMoonInHtml = str(planetSource.find("div",{"class":re.compile("moon_a")}))
+    argumentsForParsing=[planetSource,["div","class",re.compile("moon_a")],""]
+    isThereMoonInHtml = parseUsingRegExp(argumentsForParsing)
     if "moon" in isThereMoonInHtml:
         moonStatus = "1"
     else:
@@ -509,60 +488,38 @@ def getMoon(planetSource):
     return moonStatus
 
 def getUserName(planetSource):
-    userName = ""
-    userNameInHtml = str(planetSource.find("div",{"id":re.compile("player\d+")}))
-    userNameInHtml = re.sub(pattern="\n", repl="",string=userNameInHtml)
-    userNameInHtml = re.sub(pattern="(.*<h1>|<\/h1>.*|Player: <span>|<\/span>)", repl="",string=userNameInHtml)
-    userName = NoneToBlank(userNameInHtml)
-    
-    return userName
+    argumentsForParsing=[planetSource,["div","id",re.compile("player\d+")],"(.*<h1>|<\/h1>.*|Player: <span>|<\/span>)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getUserRank(planetSource):
-    userRank = ""
-    userRankInHtml = str(planetSource.find("div",{"id":re.compile("player\d+")}))
-    userRankInHtml = re.sub(pattern="\n", repl="",string=userRankInHtml)
-    userRankInHtml = re.sub(pattern="(.*searchRelId=\d+\">|<\/a><\/li>.*)", repl="",string=userRankInHtml)
+    argumentsForParsing=[planetSource,["div","id",re.compile("player\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>.*)"]
+    userRankInHtml = parseUsingRegExp(argumentsForParsing)
 
     if "Support" in userRankInHtml: # 관리자 예외
         userRank = ""
     elif "sendMail" in userRankInHtml: # 밴 당한 사람은 랭크가 없음.
         userRank = ""
     else:
-        userRank = NoneToBlank(userRankInHtml)
+        userRank = userRankInHtml
 
     return userRank
 
 def getAllianceName(planetSource):
-    allianceName = ""
-    allianceNameInHtml = str(planetSource.find("div",{"id":re.compile("alliance\d+")}))
-    allianceNameInHtml = re.sub(pattern="\n", repl="",string=allianceNameInHtml)
-    allianceNameInHtml = re.sub(pattern="(.*<h1>|<\/h1>.*)", repl="",string=allianceNameInHtml)
-    allianceName = NoneToBlank(allianceNameInHtml)
-    
-    return allianceName
+    argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*<h1>|<\/h1>.*)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getAllianceRank(planetSource):
-    allianceRank = ""
-    allianceRankInHtml = str(planetSource.find("div",{"id":re.compile("alliance\d+")}))
-    allianceRankInHtml = re.sub(pattern="\n", repl="",string=allianceRankInHtml)
-    allianceRankInHtml = re.sub(pattern="(.*searchRelId=\d+\">|<\/a><\/li>).*", repl="",string=allianceRankInHtml)
-    allianceRank = NoneToBlank(allianceRankInHtml)
-    
-    return allianceRank
+    argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>).*"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getAllianceMember(planetSource):
-    allianceMember = ""
-    allianceMemberInHtml = str(planetSource.find("div",{"id":re.compile("alliance\d+")}))
-    allianceMemberInHtml = re.sub(pattern="\n", repl="",string=allianceMemberInHtml)
-    allianceMemberInHtml = re.sub(pattern="(.*Member: |</li><li><a href=\"allianceInfo.*)", repl="",string=allianceMemberInHtml)
-    allianceMember = NoneToBlank(allianceMemberInHtml)
-    
-    return allianceMember
+    argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*Member: |</li><li><a href=\"allianceInfo.*)"]
+    return parseUsingRegExp(argumentsForParsing)
 
 def getStatus(planetSource, condition):
-    status = ""
-    statusInHtml = str(planetSource.find("span",{"class":"status"}))
-
+    argumentsForParsing=[planetSource,["span","class","status"],""]
+    statusInHtml = parseUsingRegExp(argumentsForParsing)
+    
     if condition in statusInHtml:
         status = "1"
     else:
@@ -571,13 +528,14 @@ def getStatus(planetSource, condition):
     return status
 
 def getRecyclersForDebris(planetSource):
-    recyclersForDebris = ""
-    recyclersForDebrisInHtml = str(planetSource.find("li",{"class":"debris-recyclers"}))
-    recyclersForDebrisInHtml = recyclersForDebrisInHtml.replace("<li class=\"debris-recyclers\">Recyclers needed: ","").replace("</li>","")
-    recyclersForDebris = NoneToBlank(recyclersForDebrisInHtml)
-    
-    return recyclersForDebris
+    argumentsForParsing=[planetSource,["li","class","debris-recyclers"],".*Recyclers needed: |</li>"]
+    return parseUsingRegExp(argumentsForParsing)
 
-
+def parseUsingRegExp(argumentsForParsing):
+    dataSource = str(argumentsForParsing[0].find(argumentsForParsing[1][0],{argumentsForParsing[1][1]:argumentsForParsing[1][2]}))
+    dataSource = re.sub(pattern="\n", repl="",string=dataSource)
+    dataSource = str(re.sub(pattern=argumentsForParsing[2], repl="",string=dataSource))
+    data = NoneToBlank(dataSource)
+    return data
 
 OgameTools("https://en.ogame.gameforge.com/", "dfo@vomoto.com", "789456")
