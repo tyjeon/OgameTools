@@ -225,7 +225,7 @@ def parseUsingRegExp(argumentsForParsing):
     dataSource = str(argumentsForParsing[0].find(argumentsForParsing[1][0],{argumentsForParsing[1][1]:argumentsForParsing[1][2]}))
     dataSource = re.sub(pattern="\n", repl="",string=dataSource)
     dataSource = str(re.sub(pattern=argumentsForParsing[2], repl="",string=dataSource))
-    data = NoneToBlank(data)
+    data = NoneToBlank(dataSource)
     return data
 
 def setEspionageCsvTitleRow():
