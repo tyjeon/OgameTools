@@ -17,6 +17,7 @@ def OgameTools(URL,loginid,loginpw):
     loginOgame(browser,URL,loginid,loginpw)
     time.sleep(2)
     browser.switch_to.window(browser.window_handles[-1])
+
     choice = 0
     while(choice!=8):
         cls()
@@ -153,6 +154,10 @@ def mailToCsv(browser):
             print("메일함의 "+str(i+1)+"/"+str(totalPage)+" 페이지 진행 중")
         
             for mailSource in mailsSources:
+                mailHead = ""
+                mailHead = mailSource.find("div",{"class":"msg_head"}) # 정찰 미션 결과가 아닌 메세지는 넘김.
+                if not "Espionage report from" in str(mailHead):
+                    continue
                 
                 planetName.append(getPlanetNameInMail(mailSource))
                 planetGalaxy.append(getPlanetGalaxyInMail(mailSource))
@@ -218,7 +223,8 @@ def getDataInMail(mailSource, string):
         data = "Low_Espionage_Level"
     else:
         data = NoneToBlank(dataInHtml)
-        
+
+    print(data)
     return data
 
 def parseUsingRegExp(argumentsForParsing):
