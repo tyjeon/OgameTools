@@ -19,6 +19,19 @@ def OgameTools(URL,loginid,loginpw):
     browser.switch_to.window(browser.window_handles[-1])
 
     choice = 0
+
+    testcase = 1
+    if testcase == 1:
+        with open('espionage.csv', encoding="utf-8",mode='w') as f: # 테스트케이스입니다.
+            print("8,480,6",file=f)
+            print("8,479,8",file=f)
+            print("8,480,8",file=f)
+        espionage(browser)
+        mailToCsv(browser)
+        autoAttack(browser)
+        enterGalaxyTab(browser)
+        return 0
+    
     while(choice!=8):
         cls()
         choice = input("작업 입력\n1 : 정찰\n2 : 정찰 내용을 Csv로 저장\n3 : 자동공격\n5 : 갤럭시툴\n8 : 종료\n--> ")
@@ -97,7 +110,11 @@ def espionage(browser):
             systemCoordinate.append(row[1])
             planetNumberCoordinate.append(row[2])
         
-    enterGalaxyTab(browser)
+    print("Galaxy 메뉴로 이동")
+    time.sleep(3)
+
+    browser.find_element_by_css_selector("#menuTable > li:nth-child(9) > a").click()
+    time.sleep(3)
     
     for i in range(0,len(galaxyCoordinate)):
         while(True):
@@ -106,7 +123,7 @@ def espionage(browser):
             if isIValueSameAsGalaxy(source, galaxyCoordinate[i]):
                 if isJValueSameAsSystem(source, systemCoordinate[i]):
                   break
-
+        time.sleep(3)
         targetEspionageIcon = browser.find_element_by_xpath("//*[@id=\"galaxytable\"]/tbody/tr["+str(planetNumberCoordinate[i])+"]/td[8]/span/a[1]/span")
         targetEspionageIcon.click()
         print(str(galaxyCoordinate[i])+":"+str(systemCoordinate[i])+":"+str(planetNumberCoordinate[i])+"에 대한 정찰 명령 수행 : "+str(i+1)+"/"+str(len(galaxyCoordinate))+" 완료.")
@@ -587,4 +604,5 @@ def parseUsingRegExp(argumentsForParsing):
     data = NoneToBlank(dataSource)
     return data
 
-OgameTools("https://en.ogame.gameforge.com/", "dfo@vomoto.com", "789456")
+if __name__ == '__main__':
+    OgameTools("https://en.ogame.gameforge.com/", "dfo@vomoto.com", "789456")
