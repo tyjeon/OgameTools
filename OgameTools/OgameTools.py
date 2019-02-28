@@ -1,4 +1,5 @@
 import espionage
+import autoattack
 import util
 
 
@@ -25,13 +26,14 @@ def OgameTools(URL,loginid,loginpw):
 
     testcase = 1
     if testcase == 1:
+        choice=8
         with open('espionage.csv', encoding="utf-8",mode='w') as f: # 테스트케이스입니다.
             print("8,480,6",file=f)
             print("8,479,8",file=f)
             print("8,480,8",file=f)
-        espionage.espionage(browser)
-        #mailToCsv(browser)
-        #autoAttack(browser)
+        #espionage.espionage(browser)
+        mailToCsv(browser)
+        autoattack.autoattack(browser)
         #enterGalaxyTab(browser)
         return 0
     
@@ -167,35 +169,35 @@ def mailToCsv(browser):
             
 def getCurrentPageNumber(bsObject):
     argumentsForParsing=[bsObject,["li","class","curPage"],"(.*data-tab=\"\d*\">|\/.*)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getTotalPageNumber(bsObject):
     argumentsForParsing=[bsObject,["li","class","curPage"],"(.*data-tab=\"\d*\">\d*\/|<\/li>.*)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getPlanetNameInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*figure>| .*)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getPlanetGalaxyInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*\[|:.*)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getPlanetSystemInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*\[\d+:|:\d+].*)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
     
 def getPlanetNumberInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*:|\].*)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getPlayerNameInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class",re.compile("status_*")],"(<span.*\">|<\/span>)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getDataInMail(mailSource, string):
     argumentsForParsing=[mailSource,["span","class",re.compile("msg_content")],"(.*"+string+"|<\/span>.*)|\."]
-    dataInHtml = parseUsingRegExp(argumentsForParsing)
+    dataInHtml = util.parseUsingRegExp(argumentsForParsing)
     
     if "compacting" in dataInHtml: # 정탐 레벨 낮음
         data = "Low_Espionage_Level"
@@ -435,15 +437,15 @@ def parseOgameGalaxySource(html,galaxyNumber,systemNumber,filename):
 
 def getPlanetNumber(planetSource):
     argumentsForParsing=[planetSource,["td","class","position js_no_action"],"(<td class=\"position js_no_action\">|</td>)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getPlanetName(planetSource):
     argumentsForParsing=[planetSource,["div","id",re.compile("planet\d+")],"(.*textNormal\">|<\/span.*div>)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getMoon(planetSource):
     argumentsForParsing=[planetSource,["div","class",re.compile("moon_a")],""]
-    isThereMoonInHtml = parseUsingRegExp(argumentsForParsing)
+    isThereMoonInHtml = util.parseUsingRegExp(argumentsForParsing)
     if "moon" in isThereMoonInHtml:
         moonStatus = "1"
     else:
@@ -453,11 +455,11 @@ def getMoon(planetSource):
 
 def getUserName(planetSource):
     argumentsForParsing=[planetSource,["div","id",re.compile("player\d+")],"(.*<h1>|<\/h1>.*|Player: <span>|<\/span>)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getUserRank(planetSource):
     argumentsForParsing=[planetSource,["div","id",re.compile("player\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>.*)"]
-    userRankInHtml = parseUsingRegExp(argumentsForParsing)
+    userRankInHtml = util.parseUsingRegExp(argumentsForParsing)
 
     if "Support" in userRankInHtml: # 관리자 예외
         userRank = ""
@@ -470,19 +472,19 @@ def getUserRank(planetSource):
 
 def getAllianceName(planetSource):
     argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*<h1>|<\/h1>.*)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getAllianceRank(planetSource):
     argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>).*"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getAllianceMember(planetSource):
     argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*Member: |</li><li><a href=\"allianceInfo.*)"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 def getStatus(planetSource, condition):
     argumentsForParsing=[planetSource,["span","class","status"],""]
-    statusInHtml = parseUsingRegExp(argumentsForParsing)
+    statusInHtml = util.parseUsingRegExp(argumentsForParsing)
     
     if condition in statusInHtml:
         status = "1"
@@ -493,7 +495,7 @@ def getStatus(planetSource, condition):
 
 def getRecyclersForDebris(planetSource):
     argumentsForParsing=[planetSource,["li","class","debris-recyclers"],".*Recyclers needed: |</li>"]
-    return parseUsingRegExp(argumentsForParsing)
+    return util.parseUsingRegExp(argumentsForParsing)
 
 if __name__ == '__main__':
     OgameTools("https://en.ogame.gameforge.com/", "dfo@vomoto.com", "789456")
