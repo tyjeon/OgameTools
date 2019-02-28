@@ -27,7 +27,7 @@ def OgameTools(URL,loginid,loginpw):
         #espionage.espionage(browser)
         #mailtocsv.mailtocsv(browser)
         #autoattack.autoattack(browser)
-        #galaxytool.enterGalaxyTab(browser)
+        #galaxytool.enter_galaxy_tab(browser)
         return 0
     
     while(choice!=8):

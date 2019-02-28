@@ -35,8 +35,8 @@ def espionage(browser):
         while(True):
             source = browser.page_source
             util.moveToCoordinate(browser,galaxyCoordinate[i],systemCoordinate[i])
-            if util.isIValueSameAsGalaxy(source, galaxyCoordinate[i]):
-                if util.isJValueSameAsSystem(source, systemCoordinate[i]):
+            if util.is_i_value_same_as_galaxy(source, galaxyCoordinate[i]):
+                if util.is_j_value_same_as_system(source, systemCoordinate[i]):
                   break
         time.sleep(3)
         targetEspionageIcon = browser.find_element_by_xpath("//*[@id=\"galaxytable\"]/tbody/tr["+str(planetNumberCoordinate[i])+"]/td[8]/span/a[1]/span")

@@ -86,40 +86,40 @@ def mailtocsv(browser):
             
 def getCurrentPageNumber(bsObject):
     argumentsForParsing=[bsObject,["li","class","curPage"],"(.*data-tab=\"\d*\">|\/.*)"]
-    return util.parseUsingRegExp(argumentsForParsing)
+    return util.parse_using_regexp(argumentsForParsing)
 
 def getTotalPageNumber(bsObject):
     argumentsForParsing=[bsObject,["li","class","curPage"],"(.*data-tab=\"\d*\">\d*\/|<\/li>.*)"]
-    return util.parseUsingRegExp(argumentsForParsing)
+    return util.parse_using_regexp(argumentsForParsing)
 
 def getPlanetNameInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*figure>| .*)"]
-    return util.parseUsingRegExp(argumentsForParsing)
+    return util.parse_using_regexp(argumentsForParsing)
 
 def getPlanetGalaxyInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*\[|:.*)"]
-    return util.parseUsingRegExp(argumentsForParsing)
+    return util.parse_using_regexp(argumentsForParsing)
 
 def getPlanetSystemInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*\[\d+:|:\d+].*)"]
-    return util.parseUsingRegExp(argumentsForParsing)
+    return util.parse_using_regexp(argumentsForParsing)
     
 def getPlanetNumberInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class","msg_title blue_txt"],"(.*:|\].*)"]
-    return util.parseUsingRegExp(argumentsForParsing)
+    return util.parse_using_regexp(argumentsForParsing)
 
 def getPlayerNameInMail(mailSource):
     argumentsForParsing=[mailSource,["span","class",re.compile("status_*")],"(<span.*\">|<\/span>)"]
-    return util.parseUsingRegExp(argumentsForParsing)
+    return util.parse_using_regexp(argumentsForParsing)
 
 def getDataInMail(mailSource, string):
     argumentsForParsing=[mailSource,["span","class",re.compile("msg_content")],"(.*"+string+"|<\/span>.*)|\."]
-    dataInHtml = util.parseUsingRegExp(argumentsForParsing)
+    dataInHtml = util.parse_using_regexp(argumentsForParsing)
     
     if "compacting" in dataInHtml: # 정탐 레벨 낮음
         data = "Low_Espionage_Level"
     else:
-        data = util.NoneToBlank(dataInHtml)
+        data = dataInHtml
 
     return data
 
