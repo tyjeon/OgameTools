@@ -5,15 +5,14 @@ import mailtocsv
 import autoattack
 import galaxytool
 import util
-
 from selenium import webdriver
 import time
 
 def OgameTools(URL,loginid,loginpw):
     browser = preparewebdriver.preparewebdriver()
-    loginogame.loginogame(browser,URL,loginid,loginpw)
+    loginogame.login_ogame(browser,URL,loginid,loginpw)
     time.sleep(2)
-    browser.switch_to.window(browser.window_handles[-1])
+    
 
     choice = 0
 
@@ -44,6 +43,8 @@ def OgameTools(URL,loginid,loginpw):
         if int(choice) == 8:
            browser.quit()
            break
+
+
 
 if __name__ == '__main__':
     OgameTools("https://en.ogame.gameforge.com/", "dfo@vomoto.com", "789456")
