@@ -86,14 +86,6 @@ def setCsvTitleRow():
 def parseOgameGalaxySource(html,galaxyNumber,systemNumber,filename):
 
         bsObject = BeautifulSoup(html, "html.parser")
-            
-        # 각 행성을 순환하기(1번~15번)  
-        # 왜 그냥 findAll 각각해서 리스트 순환하며 csv 등록하지 않느냐면,
-        # 어떤 행성번호는 빈 칸인데 이러면 다른 행성명, 행성유저 등의
-        # 리스트가 당겨지기 때문이다.
-        # 당연히 문제가 된다. 그래서 행성 1번의 행성명... 이런 식으로 구하는 것.
-        
-
         planetNumber = []
         planetName = []
         isThereMoon = []
@@ -110,8 +102,6 @@ def parseOgameGalaxySource(html,galaxyNumber,systemNumber,filename):
         systemSource = bsObject.findAll("tr",{"class":re.compile("^row.*")})
 
         for planetSource in systemSource:
-                # 행성 번호, 행성명, 달, 유저명, 유저랭크, 얼라이언스명, 얼라이언스 랭크, 얼라이언스 멤버,
-                # 스테이터스(I광, 휴가), 데브리(수확선 필요량)
                 planetNumber.append(getPlanetNumber(planetSource))
                 planetName.append(getPlanetName(planetSource))
                 isThereMoon.append(getMoon(planetSource))
