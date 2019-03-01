@@ -10,6 +10,7 @@ import datetime
 from bs4 import BeautifulSoup
 
 def enter_galaxy_tab(browser):
+    print("---------------------------------------------")
     print("Galaxy 메뉴로 최초 이동")
     WebDriverWait(browser, 20). \
                                until(EC.presence_of_element_located((By.CSS_SELECTOR,"#menuTable > li:nth-child(9) > a")))
@@ -18,9 +19,10 @@ def enter_galaxy_tab(browser):
     loop_galaxy(browser)
 
 def loop_galaxy(browser):
-    print("현재 테스트케이스로 갤럭시 1~2, 시스템 1~2까지만 순환합니다.")
+    __max_galaxy = input("서버의 마지막 은하 좌표를 입력해주십시오.\n--> ")
+    __max_system = input("각 은하의 마지막 시스템 좌표를 입력해주십시오.\n--> ")
     filename = __set_csv_title_row()
-    for i in range(1,3): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
+    for i in range(1,int(__max_galaxy)+1): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
         if i==1:
             __move_to_coordinates(browser,1,1)
         else:
@@ -30,7 +32,7 @@ def loop_galaxy(browser):
                     source = []
                     break
         source = []
-        for j in range(1,3):
+        for j in range(1,int(__max_system)+1):
             __moment_when_scraping_system_starts = time.time()
             source.append("")
             while(True):
@@ -41,19 +43,19 @@ def loop_galaxy(browser):
                 if util.is_i_value_same_as_galaxy(source[j-1],i) and util.is_j_value_same_as_system(source[j-1],j):
                     __moment_when_scraping_system_ends = time.time()
                     periodOfScraping = __moment_when_scraping_system_ends - __moment_when_scraping_system_starts
-                    print(str(i)+":"+str(j)+"/9:499 "+str(periodOfScraping)+" Sec")
+                    print(str(i)+":"+str(j)+"/"+str(__max_galaxy)+":"+str(__max_system)+" "+str(periodOfScraping)+"초")
                     break
 
-        for j in range(1,3):
+        for j in range(1,int(__max_system)+1):
             __parse_ogame_galaxy_source(source[j-1],i,j,filename)
 
-def __move_to_coordinates(browser,galaxyNumber,systemNumber):
-    browser.find_element_by_css_selector("#galaxy_input").send_keys(galaxyNumber)
-    browser.find_element_by_css_selector("#system_input").send_keys(systemNumber)
+def __move_to_coordinates(browser,__galaxy_number,__system_number):
+    browser.find_element_by_css_selector("#galaxy_input").send_keys(__galaxy_number)
+    browser.find_element_by_css_selector("#system_input").send_keys(__system_number)
     browser.find_element_by_css_selector("#galaxyHeader > form > div:nth-child(9)").click()
 
-def __move_system(browser,systemNumber):
-    browser.find_element_by_css_selector("#system_input").send_keys(systemNumber)
+def __move_system(browser,__system_number):
+    browser.find_element_by_css_selector("#system_input").send_keys(__system_number)
     browser.find_element_by_css_selector("#galaxyHeader > form > div:nth-child(9)").click()
 
 def __set_csv_title_row():
@@ -72,7 +74,7 @@ def __set_csv_title_row():
 
     return filename
 
-def __parse_ogame_galaxy_source(html,galaxyNumber,systemNumber,filename):
+def __parse_ogame_galaxy_source(html,__galaxy_number,__system_number,filename):
 
         __bs_object = BeautifulSoup(html, "html.parser")
         __planet_number = []
@@ -107,7 +109,7 @@ def __parse_ogame_galaxy_source(html,galaxyNumber,systemNumber,filename):
         i = 0
         for i in range(len(__planet_name)):
                 with open(filename, encoding="utf-8",mode='a+') as f:
-                        print(",".join([str(galaxyNumber),str(systemNumber),__planet_number[i],__planet_name[i],__is_there_moon[i],\
+                        print(",".join([str(__galaxy_number),str(__system_number),__planet_number[i],__planet_name[i],__is_there_moon[i],\
                                         __user_name[i],__user_rank[i],\
                                         __alliance_name[i],__alliance_rank[i],__alliance_member[i],\
                                         __status_vacation[i],__status_inactive[i],__status_longinactive[i],\
