@@ -97,8 +97,7 @@ def __send_fleet(browser):
     WebDriverWait(browser, 20). \
                                until(EC.presence_of_element_located((By.CSS_SELECTOR,"#missionButton1")))
     browser.find_element_by_css_selector("#missionButton1").click()
-    WebDriverWait(browser, 20). \
-                               until(EC.presence_of_element_located((By.CSS_SELECTOR,"#start")))
+    time.sleep(random.randrange(20,30)*0.1)
     browser.find_element_by_css_selector("#start").click()
     time.sleep(random.randrange(10,20)*0.1)
     print("좌표 : "+str(__attack_coordinates[0])+":"+str(__attack_coordinates[1])+":"+str(__attack_coordinates[2])+"에 대한 공격 미션 수행")
