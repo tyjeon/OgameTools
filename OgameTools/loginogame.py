@@ -11,7 +11,7 @@ def login_ogame(browser,URL,loginid,loginpw):
     __login_submit(browser,loginid,loginpw)
     
 def __login_submit(browser,loginid,loginpw):
-    print("2/3 로그인 시도...", end=" ")
+    print("2/3 로그인...", end=" ")
     WebDriverWait(browser, 20). \
                            until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-1")))
     browser.find_element_by_css_selector("#ui-id-1").click()
