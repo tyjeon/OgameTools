@@ -18,15 +18,17 @@ def OgameTools(URL,loginid,loginpw):
     loginogame.login_ogame(browser,URL,loginid,loginpw)
     while(choice!=8):
         cls()
-        choice = input("작업 입력\n1 : 정찰\n2 : 정찰 내용을 Csv로 저장\n3 : 자동공격\n5 : 갤럭시툴\n8 : 종료\n--> ")
+        choice = input("작업 입력\n1 : 정찰\n2 : 시간 대기\n3 : 정찰 내용을 Csv로 저장\n4 : 자동공격\n5 : 갤럭시툴\n8 : 종료\n--> ")
         if int(choice) == 1:
-            espionage(browser)
+            spionage.espionage(browser)
         if int(choice) == 2:
-            mailtocsv.mailtocsv(browser)
+            util.wait_time(browser)
         if int(choice) == 3:
+            mailtocsv.mail_to_csv(browser)
+        if int(choice) == 4:
             autoattack.auto_attack(browser)
         if int(choice) == 5:
-            enterGalaxyTab(browser)
+            galaxytool.enter_galaxy_tab(browser)
         if int(choice) == 8:
            browser.quit()
            break
