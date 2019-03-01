@@ -7,7 +7,7 @@ import datetime
 from bs4 import BeautifulSoup
 
 def enter_galaxy_tab(browser):
-    print("Galaxy 메뉴로 이동")
+    print("Galaxy 메뉴로 최초 이동")
     time.sleep(3)
 
     browser.find_element_by_css_selector("#menuTable > li:nth-child(9) > a").click()
@@ -18,56 +18,45 @@ def enter_galaxy_tab(browser):
 def loop_galaxy(browser):
     print("현재 테스트케이스로 갤럭시 1~2, 시스템 1~2까지만 순환합니다.")
     for i in range(1,3): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
-        if(i>=2):
+        if i==1:
+            __move_to_coordinates(browser,1,1)
+        else:
             while(True):
                 if util.is_i_value_different_from_galaxy(source[j-1],i):
-                    moveToCoordinate(browser,i,1)
+                    __move_to_coordinates(browser,i,1)
+                    source = []
                     break
-        else:
-            moveToCoordinate(browser,1,1)
-
         source = []
         for j in range(1,3):
-            momentWhenScrapingSystemStarts = time.time()
+            __moment_when_scraping_system_starts = time.time()
             source.append("")
-            if j==1:
-                while(True):
-                    source[j-1]=browser.page_source
-                    if util.is_i_value_different_from_galaxy(source[j-1],1):
-                        source[j-1]=browser.page_source
-                        periodOfScraping = momentWhenScrapingSystemEnds - momentWhenScrapingSystemStarts
-                        print(str(i)+":"+str(j)+"/9:499 "+str(periodOfScraping)+" Sec")
-                        break
-            elif j>=2:
-                while(True):
-                    if j>=2:
-                        source[j-1]=browser.page_source
-                                
-                    if util.is_j_value_different_from_system(source[j-1],j):
-                        moveSystem(browser,j)
+            while(True):
+                source[j-1]=browser.page_source
+                if util.is_j_value_different_from_system(source[j-1],j):
+                    __move_system(browser,j)
+                        
+                if util.is_i_value_same_as_galaxy(source[j-1],i) and util.is_j_value_same_as_system(source[j-1],j):
+                    __moment_when_scraping_system_ends = time.time()
+                    periodOfScraping = __moment_when_scraping_system_ends - __moment_when_scraping_system_starts
+                    print(str(i)+":"+str(j)+"/9:499 "+str(periodOfScraping)+" Sec")
+                    break
 
-                    if util.is_i_value_same_as_galaxy(source[j-1],i) and util.is_j_value_same_as_system(source[j-1],j):
-                        momentWhenScrapingSystemEnds = time.time()
-                        periodOfScraping = momentWhenScrapingSystemEnds - momentWhenScrapingSystemStarts
-                        print(str(i)+":"+str(j)+"/9:499 "+str(periodOfScraping)+" Sec")
-                        break
         if i == 1:
-            filename = ""
-            filename = setCsvTitleRow()
+            filename = __set_csv_title_row()
 
         for j in range(1,3):
             parseOgameGalaxySource(source[j-1],i,j,filename)
 
-def moveToCoordinate(browser,galaxyNumber,systemNumber):
+def __move_to_coordinates(browser,galaxyNumber,systemNumber):
     browser.find_element_by_css_selector("#galaxy_input").send_keys(galaxyNumber)
     browser.find_element_by_css_selector("#system_input").send_keys(systemNumber)
     browser.find_element_by_css_selector("#galaxyHeader > form > div:nth-child(9)").click()
 
-def moveSystem(browser,systemNumber):
+def __move_system(browser,systemNumber):
     browser.find_element_by_css_selector("#system_input").send_keys(systemNumber)
     browser.find_element_by_css_selector("#galaxyHeader > form > div:nth-child(9)").click()
 
-def setCsvTitleRow():
+def __set_csv_title_row():
     today = datetime.datetime.today()
     year = str(today.year)
     month = str(today.month)
@@ -101,19 +90,19 @@ def parseOgameGalaxySource(html,galaxyNumber,systemNumber,filename):
         
         systemSource = bsObject.findAll("tr",{"class":re.compile("^row.*")})
 
-        for planetSource in systemSource:
-                planetNumber.append(getPlanetNumber(planetSource))
-                planetName.append(getPlanetName(planetSource))
-                isThereMoon.append(getMoon(planetSource))
-                userName.append(getUserName(planetSource))
-                userRank.append(getUserRank(planetSource))
-                allianceName.append(getAllianceName(planetSource))
-                allianceRank.append(getAllianceRank(planetSource))
-                allianceMember.append(getAllianceMember(planetSource))
-                status_vacation.append(getStatus(planetSource,"status_abbr_vacation"))
-                status_inactive.append(getStatus(planetSource,"status_abbr_inactive"))
-                status_longinactive.append(getStatus(planetSource,"status_abbr_longinactive"))
-                recyclersForDebris.append(getRecyclersForDebris(planetSource))
+        for planet_source in systemSource:
+                planetNumber.append(getPlanetNumber(planet_source))
+                planetName.append(getPlanetName(planet_source))
+                isThereMoon.append(getMoon(planet_source))
+                userName.append(getUserName(planet_source))
+                userRank.append(getUserRank(planet_source))
+                allianceName.append(__get_alliance_name(planet_source))
+                allianceRank.append(__get_alliance_rank(planet_source))
+                allianceMember.append(__get_alliance_member(planet_source))
+                status_vacation.append(getStatus(planet_source,"status_abbr_vacation"))
+                status_inactive.append(getStatus(planet_source,"status_abbr_inactive"))
+                status_longinactive.append(getStatus(planet_source,"status_abbr_longinactive"))
+                recyclersForDebris.append(getRecyclersForDebris(planet_source))
 
         i = 0
         for i in range(len(planetName)):
@@ -124,17 +113,17 @@ def parseOgameGalaxySource(html,galaxyNumber,systemNumber,filename):
                                         status_vacation[i],status_inactive[i],status_longinactive[i],\
                                         recyclersForDebris[i],]),file=f)
 
-def getPlanetNumber(planetSource):
-    argumentsForParsing=[planetSource,["td","class","position js_no_action"],"(<td class=\"position js_no_action\">|</td>)"]
-    return util.parse_using_regexp(argumentsForParsing)
+def getPlanetNumber(planet_source):
+    arguments_for_parsing=[planet_source,["td","class","position js_no_action"],"(<td class=\"position js_no_action\">|</td>)"]
+    return util.parse_using_regexp(arguments_for_parsing)
 
-def getPlanetName(planetSource):
-    argumentsForParsing=[planetSource,["div","id",re.compile("planet\d+")],"(.*textNormal\">|<\/span.*div>)"]
-    return util.parse_using_regexp(argumentsForParsing)
+def getPlanetName(planet_source):
+    arguments_for_parsing=[planet_source,["div","id",re.compile("planet\d+")],"(.*textNormal\">|<\/span.*div>)"]
+    return util.parse_using_regexp(arguments_for_parsing)
 
-def getMoon(planetSource):
-    argumentsForParsing=[planetSource,["div","class",re.compile("moon_a")],""]
-    isThereMoonInHtml = util.parse_using_regexp(argumentsForParsing)
+def getMoon(planet_source):
+    arguments_for_parsing=[planet_source,["div","class",re.compile("moon_a")],""]
+    isThereMoonInHtml = util.parse_using_regexp(arguments_for_parsing)
     if "moon" in isThereMoonInHtml:
         moonStatus = "1"
     else:
@@ -142,13 +131,13 @@ def getMoon(planetSource):
 
     return moonStatus
 
-def getUserName(planetSource):
-    argumentsForParsing=[planetSource,["div","id",re.compile("player\d+")],"(.*<h1>|<\/h1>.*|Player: <span>|<\/span>)"]
-    return util.parse_using_regexp(argumentsForParsing)
+def getUserName(planet_source):
+    arguments_for_parsing=[planet_source,["div","id",re.compile("player\d+")],"(.*<h1>|<\/h1>.*|Player: <span>|<\/span>)"]
+    return util.parse_using_regexp(arguments_for_parsing)
 
-def getUserRank(planetSource):
-    argumentsForParsing=[planetSource,["div","id",re.compile("player\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>.*)"]
-    userRankInHtml = util.parse_using_regexp(argumentsForParsing)
+def getUserRank(planet_source):
+    arguments_for_parsing=[planet_source,["div","id",re.compile("player\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>.*)"]
+    userRankInHtml = util.parse_using_regexp(arguments_for_parsing)
 
     if "Support" in userRankInHtml: # 관리자 예외
         userRank = ""
@@ -159,29 +148,29 @@ def getUserRank(planetSource):
 
     return userRank
 
-def getAllianceName(planetSource):
-    argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*<h1>|<\/h1>.*)"]
-    return util.parse_using_regexp(argumentsForParsing)
+def __get_alliance_name(planet_source):
+    arguments_for_parsing=[planet_source,["div","id",re.compile("alliance\d+")],"(.*<h1>|<\/h1>.*)"]
+    return util.parse_using_regexp(arguments_for_parsing)
 
-def getAllianceRank(planetSource):
-    argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>).*"]
-    return util.parse_using_regexp(argumentsForParsing)
+def __get_alliance_rank(planet_source):
+    arguments_for_parsing=[planet_source,["div","id",re.compile("alliance\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>).*"]
+    return util.parse_using_regexp(arguments_for_parsing)
 
-def getAllianceMember(planetSource):
-    argumentsForParsing=[planetSource,["div","id",re.compile("alliance\d+")],"(.*Member: |</li><li><a href=\"allianceInfo.*)"]
-    return util.parse_using_regexp(argumentsForParsing)
+def __get_alliance_member(planet_source):
+    arguments_for_parsing=[planet_source,["div","id",re.compile("alliance\d+")],"(.*Member: |</li><li><a href=\"allianceInfo.*)"]
+    return util.parse_using_regexp(arguments_for_parsing)
 
-def getStatus(planetSource, condition):
-    argumentsForParsing=[planetSource,["span","class","status"],""]
-    statusInHtml = util.parse_using_regexp(argumentsForParsing)
+def getStatus(planet_source, condition):
+    arguments_for_parsing=[planet_source,["span","class","status"],""]
+    __status_in_html = util.parse_using_regexp(arguments_for_parsing)
     
-    if condition in statusInHtml:
+    if condition in __status_in_html:
         status = "1"
     else:
         status = ""
 
     return status
 
-def getRecyclersForDebris(planetSource):
-    argumentsForParsing=[planetSource,["li","class","debris-recyclers"],".*Recyclers needed: |</li>"]
-    return util.parse_using_regexp(argumentsForParsing)
+def getRecyclersForDebris(planet_source):
+    arguments_for_parsing=[planet_source,["li","class","debris-recyclers"],".*Recyclers needed: |</li>"]
+    return util.parse_using_regexp(arguments_for_parsing)
