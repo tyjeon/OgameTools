@@ -41,7 +41,7 @@ def espionage(browser):
         __move_to_espionage_coordinates(browser, __espionage_coordinates)
         
 def __enter_galaxy_tab(browser):
-    print("Galaxy 메뉴로 최초 이동
+    print("Galaxy 메뉴로 최초 이동")
     WebDriverWait(browser, 20). \
                                until(EC.presence_of_element_located((By.CSS_SELECTOR,"#menuTable > li:nth-child(9) > a")))
     browser.find_element_by_css_selector("#menuTable > li:nth-child(9) > a").click()
