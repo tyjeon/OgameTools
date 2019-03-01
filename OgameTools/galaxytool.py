@@ -43,7 +43,7 @@ def loop_galaxy(browser):
                 if util.is_i_value_same_as_galaxy(source[j-1],i) and util.is_j_value_same_as_system(source[j-1],j):
                     __moment_when_scraping_system_ends = time.time()
                     periodOfScraping = __moment_when_scraping_system_ends - __moment_when_scraping_system_starts
-                    print(str(i)+":"+str(j)+"/"+str(__max_galaxy)+":"+str(__max_system)+" "+str(periodOfScraping)+"초")
+                    print(str(i)+":"+str(j)+"/"+str(__max_galaxy)+":"+str(__max_system)+" "+str(periodOfScraping)+" 초")
                     break
 
         for j in range(1,int(__max_system)+1):
