@@ -14,13 +14,9 @@ def __login_submit(browser,loginid,loginpw):
     print("2/3 로그인 시도...")
     WebDriverWait(browser, 20). \
                            until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-1")))
-    print(WebDriverWait(browser, 20). \
-                           until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-1"))))
     browser.find_element_by_css_selector("#ui-id-1").click()
     WebDriverWait(browser, 20). \
                            until(EC.presence_of_element_located((By.CSS_SELECTOR,"#usernameLogin")))
-    print(WebDriverWait(browser, 20). \
-                           until(EC.presence_of_element_located((By.CSS_SELECTOR,"#usernameLogin"))))
     browser.find_element_by_css_selector("#usernameLogin").send_keys(loginid)
     browser.find_element_by_css_selector("#passwordLogin").send_keys(loginpw)
     browser.find_element_by_css_selector("#loginSubmit").click()
