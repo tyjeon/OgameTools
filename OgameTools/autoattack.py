@@ -30,8 +30,8 @@ def auto_attack(browser):
         
         __attack_coordinates=[__galaxy_coordinate[i],__system_coordinate[i], \
                           __planet_number_coordinate[i],__number_of_large_cargo[i]]
-        print("------------------------------------------------------")
-        print("1/4 전체 " + str(len(__galaxy_coordinate)-1) + "개 좌표 중 " + str(i) + "번째 - 좌표 : "+str(__attack_coordinates[0])+ \
+        print("-------------------------------------------------")
+        print(str(len(__galaxy_coordinate)-1) + "개 좌표 중 " + str(i) + "번째 - 좌표 : "+str(__attack_coordinates[0])+ \
               ":" + str(__attack_coordinates[1]) + ":" + str(__attack_coordinates[2]) + "에 대한 공격...")
         
         __enter_fleet_tab(browser,__attack_coordinates)
@@ -75,13 +75,16 @@ def __select_fleet(browser, __attack_coordinates):
     
     
     if int(__current_large_cargos) < int(__attack_coordinates[3]):
-        print("2/4 카대 숫자가 부족합니다.")
+        print("1/3 카대 숫자가 부족합니다.")
         # 없는대로 있는카대 다집어넣기.
     #elif 카르고 0일때, 없다고 띄우고 return으로 실행 종료하기.
     else:
-        print("2/4 현재 카대 : " + str(__current_large_cargos) + " / 선택한 카대 : " + str(__attack_coordinates[3]) + "대")
+        print("1/3 현재 카대 : " + str(__current_large_cargos) + " / 선택한 카대 : " + str(__attack_coordinates[3]) + "대")
+        print("1/3 카대 숫자 입력중...", end = " ")
+        #입력하기sendkeys
+        print("완료.")
 # 테스트 부분
-        print("2/4 테스트케이스로, 정위 1개만 보냅니다.")
+        print("1/3 테스트케이스로, 정위 1개만 보냅니다.")
         browser.find_element_by_css_selector("#ship_210").send_keys("1")
 # 테스트 끝
     WebDriverWait(browser, 20). \
@@ -93,8 +96,8 @@ def __select_fleet(browser, __attack_coordinates):
 def __enter_coordinates(browser, __attack_coordinates):
     WebDriverWait(browser, 20). \
                                until(EC.presence_of_element_located((By.CSS_SELECTOR,"#pbutton")))
-    print("3/4 좌표 입력 : "+str(__attack_coordinates[0])+":"+str(__attack_coordinates[1])+ \
-          ":"+str(__attack_coordinates[2]))
+    print("2/3 좌표 입력 : "+str(__attack_coordinates[0])+":"+str(__attack_coordinates[1])+ \
+          ":"+str(__attack_coordinates[2]) + "...", end = " ")
     browser.find_element_by_css_selector("#galaxy").click
     browser.find_element_by_css_selector("#galaxy").send_keys(Keys.BACKSPACE)
     browser.find_element_by_css_selector("#galaxy").send_keys(Keys.DELETE)
@@ -104,13 +107,15 @@ def __enter_coordinates(browser, __attack_coordinates):
     WebDriverWait(browser, 20). \
                                until(EC.presence_of_element_located((By.CSS_SELECTOR,"#continue")))
     browser.find_element_by_css_selector("#continue").click()
+    print("완료.")
     __send_fleet(browser, __attack_coordinates)
 
 def __send_fleet(browser, __attack_coordinates):
+    print("3/3 좌표에 대한 공격 미션 수행...", end = " ")
     WebDriverWait(browser, 20). \
                                until(EC.presence_of_element_located((By.CSS_SELECTOR,"#missionButton1")))
     browser.find_element_by_css_selector("#missionButton1").click()
     time.sleep(random.randrange(20,30)*0.1)
     browser.find_element_by_css_selector("#start").click()
     time.sleep(random.randrange(10,20)*0.1)
-    print("4/4 좌표에 대한 공격 미션 수행")
+    print("완료.")
