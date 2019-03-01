@@ -23,13 +23,14 @@ def OgameTools(URL,loginid,loginpw):
             print("8,480,6",file=f)
             print("8,479,8",file=f)
             print("8,480,8",file=f)
+            
         espionage.espionage(browser)
         print("테스트 - 정찰 시간 : "+str(time.time()-start_time))
         start_time = time.time()
         
-        mailtocsv.mailtocsv(browser)
-        print("테스트 - 메일 정리 시간 : "+str(time.time()-start_time))
-        start_time = time.time()
+        #mailtocsv.mailtocsv(browser)
+        #print("테스트 - 메일 정리 시간 : "+str(time.time()-start_time))
+        #start_time = time.time()
 
         with open('Espionage_2019_test.csv', encoding="utf-8",mode='w') as f: # 테스트케이스입니다.
             print("tst,tst,tst,tst,tst,tst,tst,tst,tst,tst,tst,tst,tst",file=f)
@@ -40,9 +41,9 @@ def OgameTools(URL,loginid,loginpw):
         print("테스트 - 공격 시간 : "+str(time.time()-start_time))
         start_time = time.time()
         
-        galaxytool.enter_galaxy_tab(browser)
-        print("테스트 - 갤럭시툴 시간 : "+str(time.time()-start_time))
-        start_time = time.time()
+        #galaxytool.enter_galaxy_tab(browser)
+        #print("테스트 - 갤럭시툴 시간 : "+str(time.time()-start_time))
+        #start_time = time.time()
         
         return 0
 
