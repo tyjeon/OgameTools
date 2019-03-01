@@ -37,3 +37,6 @@ def __click_play_button(browser):
     WebDriverWait(browser, 20). \
                            until(EC.presence_of_element_located((By.CSS_SELECTOR,"#menuTable > li:nth-child(9) > a")))
     print("3/3 게임으로 들어가는 중... 완료.")
+    browser.switch_to.window(browser.window_handles[0])
+    browser.close()
+    browser.switch_to.window(browser.window_handles[-1])
