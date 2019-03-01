@@ -82,13 +82,13 @@ def change_none_to_blank(string):
                 return string
 
 def wait_time(): 
-    hour = input("시간 입력\n--> ")
-    minute = input("분\n--> ")
-    second = input("초\n--> ")
+    hour = input("Hour\n--> ")
+    minute = input("Minute\n--> ")
+    second = input("Second\n--> ")
 
     total_time = 3600*int(hour)+60*int(minute)+int(second)
 
     while(total_time !=0):
         time.sleep(1)
-        total_time = int(totaltime) -1
-        print(str(totaltime)+" 초 남음")
+        total_time = int(total_time) -1
+        print(str(total_time)+" 초 남음")
