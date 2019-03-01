@@ -25,7 +25,7 @@ def OgameTools(URL,loginid,loginpw):
             print("8,480,8",file=f)
         #espionage.espionage(browser)
         #mailtocsv.mailtocsv(browser)
-        #autoattack.autoattack(browser)
+        #autoattack.auto_attack(browser)
         #galaxytool.enter_galaxy_tab(browser)
         return 0
     
@@ -37,7 +37,7 @@ def OgameTools(URL,loginid,loginpw):
         if int(choice) == 2:
             mailtocsv.mailtocsv(browser)
         if int(choice) == 3:
-            autoAttack(browser)
+            autoattack.auto_attack(browser)
         if int(choice) == 5:
             enterGalaxyTab(browser)
         if int(choice) == 8:
