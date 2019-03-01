@@ -22,7 +22,7 @@ def OgameTools(URL,loginid,loginpw):
         if int(choice) == 1:
             spionage.espionage(browser)
         if int(choice) == 2:
-            util.wait_time(browser)
+            util.wait_time()
         if int(choice) == 3:
             mailtocsv.mail_to_csv(browser)
         if int(choice) == 4:
@@ -45,13 +45,14 @@ def testcasestart(URL,loginid,loginpw):
         start_time = time.time()
         
         with open('espionage.csv', encoding="utf-8",mode='w') as f: # 테스트케이스입니다.
-            print("8,480,6",file=f)
             print("8,479,8",file=f)
             print("8,480,8",file=f)
             
-        #espionage.espionage(browser)
-        #print("테스트 - 정찰 시간 : "+str(time.time()-start_time))
-        #start_time = time.time()
+        espionage.espionage(browser)
+        print("테스트 - 정찰 시간 : "+str(time.time()-start_time))
+        start_time = time.time()
+
+        util.wait_time()
         
         #mailtocsv.mail_to_csv(browser)
         #print("테스트 - 메일 정리 시간 : "+str(time.time()-start_time))
@@ -66,14 +67,16 @@ def testcasestart(URL,loginid,loginpw):
         #print("테스트 - 공격 시간 : "+str(time.time()-start_time))
         #start_time = time.time()
         
-        galaxytool.enter_galaxy_tab(browser)
-        print("테스트 - 갤럭시툴 시간 : "+str(time.time()-start_time))
-        start_time = time.time()
+        #galaxytool.enter_galaxy_tab(browser)
+        #print("테스트 - 갤럭시툴 시간 : "+str(time.time()-start_time))
+        #start_time = time.time()
 
 
 if __name__ == '__main__':
-    country = input("주소 앞 서브도메인을 입력하십시오.\n예시 : 영국 서버(https://en.ogame.gameforge.com/)라면 en을 입력하십시오.\n--> ")
-    loginid = input("이메일을 입력하십시오.\n--> ")
-    loginpw = input("암호를 입력하십시오.\n--> ")
-    #OgameTools("https://en.ogame.gameforge.com/", "dfo@vomoto.com", "789456")
-    OgameTools("https://"+country+".ogame.gameforge.com/", loginid, loginpw)
+    #country = input("주소 앞 서브도메인을 입력하십시오.\n예시 : 영국 서버(https://en.ogame.gameforge.com/)라면 en을 입력하십시오.\n--> ")
+    #loginid = input("이메일을 입력하십시오.\n--> ")
+    #loginpw = input("암호를 입력하십시오.\n--> ")
+    #OgameTools("https://"+country+".ogame.gameforge.com/", loginid, loginpw)
+
+    print("테스트 케이스 아이디로 대체")
+    OgameTools("https://en.ogame.gameforge.com/", "dfo@vomoto.com", "789456")

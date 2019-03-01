@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
 import csv
 import datetime
 import time
@@ -39,6 +40,19 @@ def espionage(browser):
               ":" + str(__espionage_coordinates[1]) + ":" + str(__espionage_coordinates[2]) + "에 대한 정탐...")
 
         __move_to_espionage_coordinates(browser, __espionage_coordinates)
+
+    # 정탐 시간 체크
+    browser.find_element_by_css_selector("#menuTable > li:nth-child(1) > a").click()
+    WebDriverWait(browser, 20). \
+                               until(EC.presence_of_element_located((By.CSS_SELECTOR,"#js_eventDetailsClosed")))
+    browser.find_element_by_css_selector("#js_eventDetailsClosed").click()
+    time.sleep(2)
+    source = browser.page_source
+    bs_object = BeautifulSoup(source, "html.parser")
+    fleet_movements = bs_object.findAll("td",{"class":"countDown friendly textBeefy"})
+    for fleet in fleet_movements:
+        print(fleet.get_text())
+    
         
 def __enter_galaxy_tab(browser):
     print("Galaxy 메뉴로 최초 이동")
