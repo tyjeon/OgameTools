@@ -1,14 +1,13 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from operator import eq
-
 import os
 import re
 
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
-
-def moveToCoordinate(browser,galaxyNumber,systemNumber):
+    
+def move_to_coordinates(browser,galaxyNumber,systemNumber):
     browser.find_element_by_css_selector("#galaxy_input").send_keys(galaxyNumber)
     browser.find_element_by_css_selector("#system_input").send_keys(systemNumber)
     browser.find_element_by_css_selector("#galaxyHeader > form > div:nth-child(9)").click()
