@@ -14,14 +14,7 @@ def testcase(URL,loginid,loginpw):
     loginogame.login_ogame(browser,URL,loginid,loginpw)
     print("테스트 - 로그인 소요 시간 : "+str(time.time()-start_time))
 
-    test = input("1 : 정찰\n"
-                 "2 : 대기\n"
-                 "3 : 메일 정리\n"
-                 "4 : 자동공격\n"
-                 "5 : 갤럭시툴\n"
-                 "원하는 값을 중복하여 선택\n"
-                 "예시 : 1234 => 정찰, 대기, 메일 정리, 자동공격을 순차적으로 실행."
-                 )
+    test = "12" # 전부 테스트를 원하는 경우 12345로 입력
     if "1" in test:
         espionage_test(browser)
     if "2" in test:
