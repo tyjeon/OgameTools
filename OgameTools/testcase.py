@@ -9,16 +9,21 @@ from selenium import webdriver
 import time
 
 def testcase(URL,loginid,loginpw):
+    test = input("1 : 정찰\n"
+                 "2 : 대기\n"
+                 "3 : 메일 정리\n"
+                 "4 : 자동공격\n"
+                 "5 : 갤럭시툴\n"
+                 "1234와 같이 여러 작업 수행 가능\n")
     start_time = time.time()
     browser = preparewebdriver.prepare_webdriver()
     loginogame.login_ogame(browser,URL,loginid,loginpw)
     print("테스트 - 로그인 소요 시간 : "+str(time.time()-start_time))
 
-    test = "12" # 전부 테스트를 원하는 경우 12345로 입력
     if "1" in test:
         espionage_test(browser)
     if "2" in test:
-        wait_test(browser)
+        wait_test()
     if "3" in test:
         mail_to_csv_test(browser)
     if "4" in test:
