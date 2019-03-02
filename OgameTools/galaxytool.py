@@ -19,35 +19,59 @@ def enter_galaxy_tab(browser):
     loop_galaxy(browser)
 
 def loop_galaxy(browser):
-    __max_galaxy = input("서버의 마지막 은하 좌표를 입력해주십시오.\n--> ")
-    __max_system = input("각 은하의 마지막 시스템 좌표를 입력해주십시오.\n--> ")
+    __start_galaxy = input("시작할 은하 좌표를 입력해주십시오.\n--> ")
+    __max_galaxy = input("마지막 은하 좌표를 입력해주십시오.\n--> ")
+    __start_system = input("시작할 시스템 좌표를 입력해주십시오.\n--> ")
+    __max_system = input("마지막 시스템 좌표를 입력해주십시오.\n--> ")
+    
     filename = __set_csv_title_row()
-    for i in range(1,int(__max_galaxy)+1): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
-        if i==1:
-            __move_to_coordinates(browser,1,1)
+    for i in range(int(__start_galaxy),int(__max_galaxy)+1): # 뒷자리 숫자 -1까지 순환한다. 10 입력시 1~9까지 순환.
+        if i == int(__start_galaxy):
+            __move_to_coordinates(browser,int(__start_galaxy),1)
         else:
             while(True):
-                if util.is_i_value_different_from_galaxy(source[j-1],i):
+                if util.is_i_value_different_from_galaxy(source[0],i):
                     __move_to_coordinates(browser,i,1)
-                    source = []
                     break
         source = []
-        for j in range(1,int(__max_system)+1):
-            __moment_when_scraping_system_starts = time.time()
-            source.append("")
-            while(True):
-                source[j-1]=browser.page_source
-                if util.is_j_value_different_from_system(source[j-1],j):
-                    __move_system(browser,j)
-                        
-                if util.is_i_value_same_as_galaxy(source[j-1],i) and util.is_j_value_same_as_system(source[j-1],j):
-                    __moment_when_scraping_system_ends = time.time()
-                    periodOfScraping = __moment_when_scraping_system_ends - __moment_when_scraping_system_starts
-                    print(str(i)+":"+str(j)+"/"+str(__max_galaxy)+":"+str(__max_system)+" "+str(periodOfScraping)+" 초")
-                    break
 
-        for j in range(1,int(__max_system)+1):
-            __parse_ogame_galaxy_source(source[j-1],i,j,filename)
+        if i == int(__start_galaxy):
+            k = 1
+            for j in range(int(__start_system),int(__max_system)+1):
+                __moment_when_scraping_system_starts = time.time()
+                source.append("")
+                while(True):
+                    source[k-1]=browser.page_source
+                            
+                    if util.is_i_value_same_as_galaxy(source[k-1],i) and util.is_j_value_same_as_system(source[k-1],j):
+                        __moment_when_scraping_system_ends = time.time()
+                        periodOfScraping = __moment_when_scraping_system_ends - __moment_when_scraping_system_starts
+                        print(str(i)+":"+str(j)+"/"+str(__max_galaxy)+":"+str(__max_system)+" "+str(periodOfScraping)+" 초")
+                        break
+                    else:
+                        __move_system(browser,j)
+                    time.sleep(0.1)
+
+                __parse_ogame_galaxy_source(source[k-1],i,int(k)-1+int(__start_system),filename)
+                k = k+1
+
+        else:
+            for j in range(1,int(__max_system)+1):
+                __moment_when_scraping_system_starts = time.time()
+                source.append("")
+                while(True):
+                    source[j-1]=browser.page_source
+                            
+                    if util.is_i_value_same_as_galaxy(source[j-1],i) and util.is_j_value_same_as_system(source[j-1],j):
+                        __moment_when_scraping_system_ends = time.time()
+                        periodOfScraping = __moment_when_scraping_system_ends - __moment_when_scraping_system_starts
+                        print(str(i)+":"+str(j)+"/"+str(__max_galaxy)+":"+str(__max_system)+" "+str(periodOfScraping)+" 초")
+                        break
+                    else:
+                        __move_system(browser,j)
+                    time.sleep(0.1)
+
+                __parse_ogame_galaxy_source(source[j-1],i,j,filename)
 
 def __move_to_coordinates(browser,__galaxy_number,__system_number):
     browser.find_element_by_css_selector("#galaxy_input").send_keys(__galaxy_number)
