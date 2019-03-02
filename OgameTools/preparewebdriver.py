@@ -7,6 +7,9 @@ def prepare_webdriver():
     options = webdriver.ChromeOptions()
     options.add_argument("--start-maximized")
 
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
+        
     if headless_mode == 1:
         options.add_argument('headless')
         options.add_argument('window-size=1920x1080')
