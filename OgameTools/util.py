@@ -19,7 +19,11 @@ def is_i_value_same_as_galaxy(source, i):
 
     argumentsForParsing=[bsObject,["div","id","mobileDiv"],".*data-galaxy=\"|\".*"]
     galaxyValue = parse_using_regexp(argumentsForParsing)
-
+      
+    if galaxyValue == "" or i == "":
+        isSame = 0
+        return isSame
+        
     if int(galaxyValue) == int(i):
         isSame = 1
     else:
@@ -32,6 +36,10 @@ def is_i_value_different_from_galaxy(source, i):
 
     argumentsForParsing=[bsObject,["div","id","mobileDiv"],".*data-galaxy=\"|\".*"]
     galaxyValue = parse_using_regexp(argumentsForParsing)
+
+    if galaxyValue == "" or i == "":
+        isDifferent = 0
+        return isDifferent
 
     if int(galaxyValue) != int(i):
         isDifferent = 1
@@ -47,6 +55,10 @@ def is_j_value_same_as_system(source,j):
     argumentsForParsing=[bsObject,["div","id","mobileDiv"],".*data-system=\"|\".*"]
     systemValue = parse_using_regexp(argumentsForParsing)
 
+    if systemValue == "" or j == "":
+        isSame = 0
+        return isSame
+    
     if int(systemValue) == int(j):
         isSame = 1
     else:
@@ -60,6 +72,10 @@ def is_j_value_different_from_system(source,j):
 
     argumentsForParsing=[bsObject,["div","id","mobileDiv"],".*data-system=\"|\".*"]
     systemValue = parse_using_regexp(argumentsForParsing)
+
+    if systemValue == "" or j == "":
+        isDifferent = 0
+        return isDifferent
 
     if int(systemValue) != int(j):
         isDifferent = 1
