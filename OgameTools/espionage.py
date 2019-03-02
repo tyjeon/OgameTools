@@ -9,27 +9,28 @@ import csv
 import datetime
 import time
 import random
-
+import os
 
 def espionage(browser):
-
-    __check_for_csv_file = 0
-    __check_for_csv_file = input("이 작업을 진행하기 위해서는 갤럭시,시스템,행성번호만으로 이루어진(제목 행 불필요) 'espionage.csv' 파일이 필요합니다.\n준비되어 있는 경우 1을 입력하세요.\n--> ")
-
-    if int(__check_for_csv_file) != 1:
-        return 0
-    
     __galaxy_coordinate = []
     __system_coordinate = []
     __planet_number_coordinate = []
     __espionage_coordinates = []
-    
-    with open('espionage.csv', 'r') as r:
-        __csv_content=csv.reader(r)
-        for row in __csv_content:
-            __galaxy_coordinate.append(row[0])
-            __system_coordinate.append(row[1])
-            __planet_number_coordinate.append(row[2])
+
+    __file_list = os.listdir(os.getcwd())
+    is_there_espionage_file = 0
+    for item in __file_list:
+        if item.find('espionage.csv') is not -1:
+            with open('espionage.csv', 'r') as r:
+                __csv_content=csv.reader(r)
+                for row in __csv_content:
+                    __galaxy_coordinate.append(row[0])
+                    __system_coordinate.append(row[1])
+                    __planet_number_coordinate.append(row[2])
+            is_there_espionage_file = 1
+    if is_there_espionage_file == 0:
+            print("이 작업을 진행하기 위해서는 갤럭시,시스템,행성번호만으로 이루어진(제목 행 불필요) 'espionage.csv' 파일이 필요합니다.")
+            return 0
 
     __enter_galaxy_tab(browser)
 
