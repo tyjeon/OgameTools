@@ -158,14 +158,14 @@ def __get_moon(__planet_source):
     return __moon_status
 
 def __get_user_name(__planet_source):
-    __arguments_for_parsing=[__planet_source,["div","id",re.compile("player\d+")],"(.*<h1>|<\/h1>.*|Player: <span>|<\/span>)"]
+    __arguments_for_parsing=[planetsource,["div","id",re.compile("player\d+")],".*: <span>|<\/span>.*"]
     return util.parse_using_regexp(__arguments_for_parsing)
 
 def __get_user_rank(__planet_source):
     __arguments_for_parsing=[__planet_source,["div","id",re.compile("player\d+")],"(.*searchRelId=\d+\">|<\/a><\/li>.*)"]
     __user_rank_in_html = util.parse_using_regexp(__arguments_for_parsing)
 
-    if "Support" in __user_rank_in_html: # 관리자 예외
+    if "page=support" in __user_rank_in_html: # 관리자 예외
         __user_rank = ""
     elif "sendMail" in __user_rank_in_html: # 밴 당한 사람은 랭크가 없음.
         __user_rank = ""
