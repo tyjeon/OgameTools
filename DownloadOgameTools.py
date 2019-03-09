@@ -1,28 +1,49 @@
-import os
+# https://stackoverflow.com/questions/29563335/how-do-i-load-session-and-cookies-from-selenium-browser-to-requests-library-in-p
+
+from selenium import webdriver
+import time
 import requests
+import os
 
-os.mkdir("OgameTools")
-os.mkdir("OgameTools/OgameTools")
 
-def download_file(url,filename):
-    s = requests.Session()
-    file_url = s.get(url)
+def get_cookies(user_id,user_pw):
+    browser = webdriver.Chrome()
+    browser.get("https://github.com/login")
+
+    id_css_selector = "#login_field"
+    pw_css_selector = "#password"
+    login_css_selector = "#login > form > div.auth-form-body.mt-3 > input.btn.btn-primary.btn-block"
+    browser.find_element_by_css_selector(id_css_selector).send_keys(user_id)
+    browser.find_element_by_css_selector(pw_css_selector).send_keys(user_pw)
+    browser.find_element_by_css_selector(login_css_selector).click()
+    time.sleep(3)
+    cookies = browser.get_cookies()
+    browser.quit()
+
+    return cookies
+
+def transfer_cookies(session, cookies):
+    for cookie in cookies:
+        session.cookies.set(cookie['name'], cookie['value'])
+
+def download_file(session,url,filename):
+    file_url = session.get(url)
     
     with open("OgameTools/OgameTools/"+filename, 'wb') as f:
         f.write(file_url.content)
 
     print(filename+" downloaded.")
 
-if __name__ == "__main__":
-    url = ["https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/autoattack.py?token=AtNo3CQvaFVXzneCeF3Jn0C5YFQArDdNks5cgPQIwA%3D%3D",
-           "https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/espionage.py?token=AtNo3FxL47_h0jAOJEnVJjD-QZh5a7u5ks5cgPRNwA%3D%3D",
-           "https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/galaxytool.py?token=AtNo3AQyBJDjqlvlN8KA2NCNwa-tNodbks5cgPSawA%3D%3D",
-           "https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/loginogame.py?token=AtNo3HOPyrvZZEehkDdy4vlC_SfVs59Jks5cgPSmwA%3D%3D",
-           "https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/mailtocsv.py?token=AtNo3C6EJ_7MAm4hfj0aNlyRFT8X5sZyks5cgPSmwA%3D%3D",
-           "https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/main.py?token=AtNo3AEGK-5tK4H4IZLSkk7F1sUO7Dzkks5cgPSnwA%3D%3D",
-           "https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/preparewebdriver.py?token=AtNo3E2kEbkI4AXDEh7GO-xl9nAvNcRfks5cgPSnwA%3D%3D",
-           "https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/testcase.py?token=AtNo3JfmkxPs4zMI-rHJtPOFxkWpQNdNks5cgPSowA%3D%3D",
-           "https://raw.githubusercontent.com/taeyongjeon/OgameTools/master/OgameTools/util.py?token=AtNo3NR8hKMwf7NReneLjqRli14uuaioks5cgPSpwA%3D%3D",
+if __name__=='__main__':
+    url = ["https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/autoattack.py",
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/espionage.py",
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/galaxytool.py",
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/loginogame.py",
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/mailtocsv.py",
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/main.py",
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/preparewebdriver.py",
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/testcase.py",
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/util.py"
            "https://github.com/taeyongjeon/ScrapingCobeblocksPython/raw/master/chromedriver.exe"]
     filename = ["autoattack.py",
                 "espionage.py",
@@ -34,6 +55,12 @@ if __name__ == "__main__":
                 "testcase.py",
                 "util.py",
                 "chromedriver.exe"]
+
+    os.mkdir("OgameTools")
+    os.mkdir("OgameTools/OgameTools")
     
+    s = requests.Session()
+    cookies = get_cookies('taeyongjeon','cilarnycstme24*') # ID, PW 입력
+    transfer_cookies(s, cookies)
     for i in range(0,len(url)):
-        download_file(url[i],filename[i])
+        download_file(s,url[i],filename[i])
