@@ -4,6 +4,7 @@ from selenium import webdriver
 import time
 import requests
 import os
+import shutil
 
 
 def get_cookies(user_id,user_pw):
@@ -25,11 +26,17 @@ def get_cookies(user_id,user_pw):
 def transfer_cookies(session, cookies):
     for cookie in cookies:
         session.cookies.set(cookie['name'], cookie['value'])
+    
+def download_driver():
+    file_url = requests.Session().get("https://github.com/taeyongjeon/ScrapingCobeblocksPython/raw/master/chromedriver.exe")
 
+    with open("chromedriver.exe", 'wb') as f:
+        f.write(file_url.content)
+    
 def download_file(session,url,filename):
     file_url = session.get(url)
-    
-    with open("OgameTools/OgameTools/"+filename, 'wb') as f:
+
+    with open("OgameTools/"+filename, 'wb') as f:
         f.write(file_url.content)
 
     print(filename+" downloaded.")
@@ -43,7 +50,7 @@ if __name__=='__main__':
            "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/main.py",
            "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/preparewebdriver.py",
            "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/testcase.py",
-           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/util.py"
+           "https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/util.py",
            "https://github.com/taeyongjeon/ScrapingCobeblocksPython/raw/master/chromedriver.exe"]
     filename = ["autoattack.py",
                 "espionage.py",
@@ -56,9 +63,13 @@ if __name__=='__main__':
                 "util.py",
                 "chromedriver.exe"]
 
+    if os.path.isdir("OgameTools"):
+        shutil.rmtree("OgameTools")
     os.mkdir("OgameTools")
-    os.mkdir("OgameTools/OgameTools")
-    
+        
+    if not os.path.isfile("chromedriver.exe"):
+        download_driver()
+
     s = requests.Session()
     cookies = get_cookies('taeyongjeon','cilarnycstme24*') # ID, PW 입력
     transfer_cookies(s, cookies)
