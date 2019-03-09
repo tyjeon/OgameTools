@@ -1,31 +1,14 @@
-# https://stackoverflow.com/questions/29563335/how-do-i-load-session-and-cookies-from-selenium-browser-to-requests-library-in-p
-
-from selenium import webdriver
 import time
 import requests
 import os
 import shutil
+from bs4 import BeautifulSoup
+import re
 
-
-def get_cookies(user_id,user_pw):
-    browser = webdriver.Chrome()
-    browser.get("https://github.com/login")
-
-    id_css_selector = "#login_field"
-    pw_css_selector = "#password"
-    login_css_selector = "#login > form > div.auth-form-body.mt-3 > input.btn.btn-primary.btn-block"
-    browser.find_element_by_css_selector(id_css_selector).send_keys(user_id)
-    browser.find_element_by_css_selector(pw_css_selector).send_keys(user_pw)
-    browser.find_element_by_css_selector(login_css_selector).click()
-    time.sleep(3)
-    cookies = browser.get_cookies()
-    browser.quit()
-
-    return cookies
-
-def transfer_cookies(session, cookies):
-    for cookie in cookies:
-        session.cookies.set(cookie['name'], cookie['value'])
+def check_folder():
+    if os.path.isdir("OgameTools"):
+        shutil.rmtree("OgameTools")
+    os.mkdir("OgameTools")
     
 def download_driver():
     file_url = requests.Session().get("https://github.com/taeyongjeon/ScrapingCobeblocksPython/raw/master/chromedriver.exe")
@@ -40,6 +23,16 @@ def download_file(session,url,filename):
         f.write(file_url.content)
 
     print(filename+" downloaded.")
+
+def get_token(s):
+    html = s.get('https://github.com/login')
+    bs_object = BeautifulSoup(html.text,'html.parser')
+    token_source = bs_object.findAll("",{"name":"authenticity_token"})
+    token_source = re.sub(pattern="\n", repl="",string=str(token_source))
+    token = str(re.sub(pattern=".*authenticity_token\" type=\"hidden\" value=\"|\".*", repl="",string=token_source))
+    
+    return token        
+    
 
 if __name__=='__main__':
     url = ["https://github.com/taeyongjeon/OgameTools/raw/master/OgameTools/autoattack.py",
@@ -63,15 +56,14 @@ if __name__=='__main__':
                 "util.py",
                 "chromedriver.exe"]
 
-    if os.path.isdir("OgameTools"):
-        shutil.rmtree("OgameTools")
-    os.mkdir("OgameTools")
-        
-    if not os.path.isfile("chromedriver.exe"):
-        download_driver()
+    check_folder()
+    with requests.Session() as s:
+        token = get_token(s)
+        payload = {'authenticity_token':token,
+                   'login':'taeyongjeon',
+                   'password':'cilarnycstme24*'}
 
-    s = requests.Session()
-    cookies = get_cookies('taeyongjeon','cilarnycstme24*') # ID, PW 입력
-    transfer_cookies(s, cookies)
-    for i in range(0,len(url)):
-        download_file(s,url[i],filename[i])
+        login_request = s.post('https://github.com/session', data=payload)
+        
+        for i in range(0,len(url)):
+            download_file(s,url[i],filename[i])
