@@ -1,124 +1,102 @@
 import util
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
+import requests
 from bs4 import BeautifulSoup
 
 import time
+import random
 import datetime
 import re
 
 def mail_to_csv(browser):
-    print("----------------------------------------")
-    print("메일함으로 최초 이동")
-    browser.get("https://s1-en.ogame.gameforge.com/game/index.php?page=messages")
-    WebDriverWait(browser, 20). \
-                   until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-23")))
-    
-    __planet_name = []
-    __planet_galaxy = []
-    __planet_system = []
-    __planet_number = []
-    __player_name = []
-    __metal = []
-    __crystal = []
-    __deuterium = []
-    __number_of_large_cargo = []
-    __number_of_large_cargo_5x = []
-    __total_resources = []
-    __defence = []
-    __fleets = []
-    
+    s = requests.Session()
+    cookies = browser.get_cookies()
+    for cookie in cookies:
+        s.cookies.set(cookie['name'], cookie['value'])
 
-    if __is_in_the_right_page(browser,1):
-        source = browser.page_source
-        bs_object = BeautifulSoup(source, "html.parser")
-        total_page = __get_total_page_number(bs_object)
-    
-    for i in range(0,int(total_page)):
-        if __is_in_the_right_page(browser,i+1):
-            source = browser.page_source
-            bs_object = BeautifulSoup(source, "html.parser")
-            mailsSources = bs_object.findAll("li",{"class":"msg"})
+    html = []
+    page_number = 1
+    while True:
+        payload = {'messageId': '-1',
+                   'tabid': '20',
+                   'action': '107',
+                   'pagination': page_number,
+                   'ajax': '1'}
+        headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'}
         
-        print(str(i+1) + "/" + str(int(total_page)*2) + " 메일함의 "+str(i+1)+"/"+str(total_page)+" 페이지 진행 중...", end = " ")
+        request_url = "https://s1-en.ogame.gameforge.com/game/index.php?page=messages"
+        html_source = s.post(request_url, data=payload, headers=headers)
+        bs_object = BeautifulSoup(html_source.text, "html.parser")
+        last_page = get_total_page_number(bs_object)
+
+        html.append(html_source.text)
+        print("Proceeding page {}/{}...".format(str(page_number),str(last_page)))
+        if int(page_number) == int(last_page):
+            break
+        else:
+            page_number += 1
+            time.sleep(random.randrange(10,20)*1)
+            
+    filename = set_espionage_csv_title_row()
+    for i in range(0,len(html)):
+        save_information(html[i], filename)
+
+def save_information(html, filename):
     
-        for mailSource in mailsSources:
-            mailHead = mailSource.find("div",{"class":"msg_head"}) # 정찰 미션 결과가 아닌 메세지는 넘김.
+    bs_object = BeautifulSoup(html, "html.parser")
+    mailsSources = bs_object.findAll("li",{"class":"msg"})
+    
+    for mailSource in mailsSources:
+        mailHead = mailSource.find("div",{"class":"msg_head"}) # 정찰 미션 결과가 아닌 메세지는 넘김.
         if not "Espionage report from" in str(mailHead):
             continue
         
-        __planet_name.append(__get_planet_name_in_mail(mailSource))
-        __planet_galaxy.append(__get_planet_galaxy_in_mail(mailSource))
-        __planet_system.append(__get_planet_system_in_mail(mailSource))
-        __planet_number.append(__get_planet_number_in_mail(mailSource))
-        __player_name.append(__get_player_name_in_mail(mailSource))
-        
-        __metal.append(__get_data_in_mail(mailSource,"__metal: "))
-        __crystal.append(__get_data_in_mail(mailSource,"Crystal: "))
-        __deuterium.append(__get_data_in_mail(mailSource,"Deuterium: "))
-        __number_of_large_cargo.append(int(float(__get_data_in_mail(mailSource,"Resources: "))/50000))
-        __number_of_large_cargo_5x.append(int(float(__get_data_in_mail(mailSource,"Resources: "))/250000)) # 카르고 대 숫자- 5대 단위로 끊어서
-        __total_resources.append(__get_data_in_mail(mailSource,"Resources: "))
-        __defence.append(__get_data_in_mail(mailSource,"Defence: "))
-        __fleets.append(__get_data_in_mail(mailSource,"Fleets: "))
+        planet_name = get_planet_name_in_mail(mailSource)
+        planet_galaxy = get_planet_galaxy_in_mail(mailSource)
+        planet_system = get_planet_system_in_mail(mailSource)
+        planet_number = get_planet_number_in_mail(mailSource)
+        player_name = get_player_name_in_mail(mailSource)
+        metal = get_data_in_mail(mailSource,"metal: ")
+        crystal = get_data_in_mail(mailSource,"Crystal: ")
+        deuterium = get_data_in_mail(mailSource,"Deuterium: ")
+        number_of_large_cargo = str(int(float(get_data_in_mail(mailSource,"Resources: "))/50000))
+        number_of_large_cargo_5x = str(int(float(get_data_in_mail(mailSource,"Resources: "))/250000))
+        total_resources = get_data_in_mail(mailSource,"Resources: ")
+        defence = get_data_in_mail(mailSource,"Defence: ")
+        fleets = get_data_in_mail(mailSource,"Fleets: ")
 
-        print("완료.")
-        
-        if int(total_page) != 1:
-            browser.find_element_by_css_selector("#fleetsgenericpage > ul > ul:nth-child(1) > li:nth-child(4)").click()
-            WebDriverWait(browser, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR,"#ui-id-23")))
-            time.sleep(5)
 
-    filename = __set_espionage_csv_title_row()
-    for j in range(len(__planet_name)):
-        print(str(int(total_page)+j+1) + "/" + str(int(total_page)*2) + \
-              "메일함의 "+str(i+1)+"/"+str(total_page)+" 페이지 저장 중...", end = " ")
         with open(filename, encoding="utf-8",mode='a+') as f:
-            print(",".join([__planet_name[j],__planet_galaxy[j],__planet_system[j],__planet_number[j],__player_name[j],\
-                    __metal[j],__crystal[j],__deuterium[j],str(__number_of_large_cargo[j]),str(__number_of_large_cargo_5x[j]),\
-                    __total_resources[j],__defence[j],__fleets[j]]),file=f)
-        print("완료.")
+            print(",".join([planet_name,planet_galaxy,planet_system,planet_number,player_name,\
+                            metal,crystal,deuterium,number_of_large_cargo,number_of_large_cargo_5x,\
+                            total_resources,defence,fleets]),file=f)
 
-def __is_in_the_right_page(browser, page_number):
-    while(True):
-        source = browser.page_source
-        bs_object = BeautifulSoup(source, "html.parser")
-        if str(__get_current_page_number(bs_object)) == str(page_number):
-            return 1
-
-def __get_current_page_number(bs_object):
-    arguments_for_parsing=[bs_object,["li","class","curPage"],"(.*data-tab=\"\d*\">|\/.*)"]
-    return util.parse_using_regexp(arguments_for_parsing)
-
-def __get_total_page_number(bs_object):
+def get_total_page_number(bs_object):
     arguments_for_parsing=[bs_object,["li","class","curPage"],"(.*data-tab=\"\d*\">\d*\/|<\/li>.*)"]
     return util.parse_using_regexp(arguments_for_parsing)
 
-def __get_planet_name_in_mail(mailSource):
+def get_planet_name_in_mail(mailSource):
     arguments_for_parsing=[mailSource,["span","class","msg_title blue_txt"],"(.*figure>| .*)"]
     return util.parse_using_regexp(arguments_for_parsing)
 
-def __get_planet_galaxy_in_mail(mailSource):
+def get_planet_galaxy_in_mail(mailSource):
     arguments_for_parsing=[mailSource,["span","class","msg_title blue_txt"],"(.*\[|:.*)"]
     return util.parse_using_regexp(arguments_for_parsing)
 
-def __get_planet_system_in_mail(mailSource):
+def get_planet_system_in_mail(mailSource):
     arguments_for_parsing=[mailSource,["span","class","msg_title blue_txt"],"(.*\[\d+:|:\d+].*)"]
     return util.parse_using_regexp(arguments_for_parsing)
     
-def __get_planet_number_in_mail(mailSource):
+def get_planet_number_in_mail(mailSource):
     arguments_for_parsing=[mailSource,["span","class","msg_title blue_txt"],"(.*:|\].*)"]
     return util.parse_using_regexp(arguments_for_parsing)
 
-def __get_player_name_in_mail(mailSource):
+def get_player_name_in_mail(mailSource):
     arguments_for_parsing=[mailSource,["span","class",re.compile("status_*")],"(<span.*\">|<\/span>)"]
     return util.parse_using_regexp(arguments_for_parsing)
 
-def __get_data_in_mail(mailSource, string):
+def get_data_in_mail(mailSource, string):
     arguments_for_parsing=[mailSource,["span","class",re.compile("msg_content")],"(.*"+string+"|<\/span>.*)|\."]
     data_in_html = util.parse_using_regexp(arguments_for_parsing)
     
@@ -129,7 +107,7 @@ def __get_data_in_mail(mailSource, string):
 
     return data
 
-def __set_espionage_csv_title_row():
+def set_espionage_csv_title_row():
     today = datetime.datetime.today()
     year = str(today.year)
     month = str(today.month)
