@@ -1,29 +1,29 @@
 import requests
 import re
 
-def login_ogame():
-    with requests.Session() as s:
+def login_ogame(s):
+    cookies = post_login(s)
+    accounts_info = get_accounts_info(s)
         
-        cookies = post_login(s)
-        accounts_info = get_accounts_info(s)
+    playing_servers_info = get_playing_servers_info(s,accounts_info)
         
-        playing_servers_info = get_playing_servers_info(s,accounts_info)
+    print("{} {} {} {} {} {}".format("Number","Server".ljust(12),"Username".ljust(25),"Langauge","Online","Total"))
         
-        print("{} {} {} {} {} {}".format("Number","Server".ljust(12),"Username".ljust(25),"Langauge","Online","Total"))
-        
-        for i in range(0,len(playing_servers_info[0])):
-            print("{} {} {} {} {} {}".format(\
-                str(int(i)+1).ljust(6), playing_servers_info[0][i].ljust(12), accounts_info[3][i].ljust(25),\
-                accounts_info[0][i].ljust(8), playing_servers_info[1][i].ljust(6), playing_servers_info[2][i]))
+    for i in range(0,len(playing_servers_info[0])):
+        print("{} {} {} {} {} {}".format(\
+            str(int(i)+1).ljust(6), playing_servers_info[0][i].ljust(12), accounts_info[3][i].ljust(25),\
+            accounts_info[0][i].ljust(8), playing_servers_info[1][i].ljust(6), playing_servers_info[2][i]))
 
-        select_server = int(input("\nSelect Server Number : ")) - 1
-        connect_server_payload = [accounts_info[2][select_server],accounts_info[0][select_server],accounts_info[1][select_server]]
+    select_server = int(input("\nSelect Server Number : ")) - 1
+    connect_server_payload = [accounts_info[2][select_server],accounts_info[0][select_server],accounts_info[1][select_server]]
         
-        post_server(s, cookies, connect_server_payload)
+    post_server(s, cookies, connect_server_payload)
 
 def post_login(s):
-    payload = {'credentials[email]':'dfo@vomoto.com',
-               'credentials[password]':'789456',
+    login_email = input("Input Email : ")
+    login_password = input("Input Password : ")
+    payload = {'credentials[email]':login_email,
+               'credentials[password]':login_password,
                'autologin':'false',
                'language':'en',
                'kid':''}
@@ -86,18 +86,12 @@ def post_server(s, cookies, connect_server_payload):
     server_language = connect_server_payload[1]
     server_number = connect_server_payload[2]
 
-    params = {'id': game_account_id,
-              'server[language]': server_language,
-              'server[number]':server_number}
     url = ("https://lobby-api.ogame.gameforge.com/users/me/loginLink?id={}"
            "&server[language]={}"
            "&server[number]={}".format(game_account_id,server_language,server_number))
 
-    res = requests.get(url,params=params,cookies=cookies)
+    res = requests.get(url,cookies=cookies)
     result = re.sub(pattern=".*url\":\"|\"}",repl="",string=res.text).replace("\\","")
 
     connection = s.get(result)
     print(connection.text)
-
-if __name__ == "__main__":
-    login_ogame()
