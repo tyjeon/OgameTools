@@ -7,6 +7,7 @@ import time
 import random
 import datetime
 import re
+import os
 
 def mail_to_csv(s):
     print("-------------------------------------------------------------------")
@@ -105,6 +106,9 @@ def get_data_in_mail(mailSource, string):
     return data
 
 def set_espionage_csv_title_row():
+    if not os.path.isdir("Espionage"):
+        os.mkdir("Espionage")
+        
     today = datetime.datetime.today()
     year = str(today.year)
     month = str(today.month)
@@ -115,7 +119,7 @@ def set_espionage_csv_title_row():
 
     filename = "Espionage_"+year+"_"+month+"_"+day+"_"+hour+"_"+minute+".csv"
 
-    with open(filename, encoding="utf-8",mode='a+') as f:
+    with open("Espionage/"+filename, encoding="utf-8",mode='a+') as f:
         print("Planet,Gal,Sys,Pla,Player,Metal,Crystal,Deuterium,LargeCargo,LargeCargo5x,Resources,Defence,Fleets",file=f)
 
     return filename
