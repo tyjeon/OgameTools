@@ -2,6 +2,9 @@ import requests
 import re
 
 def login_ogame(s):
+    print("-------------------------------------------------------------------")
+    print("Login".center(67))
+    print("-------------------------------------------------------------------")
     cookies = post_login(s)
     
     accounts_info = get_accounts_info(s)
@@ -9,8 +12,11 @@ def login_ogame(s):
     
     show_servers(playing_servers_info,accounts_info)
     select_server = int(input("\nSelect Server Number : ")) - 1
-    
-    connect_server_payload = [accounts_info[2][select_server],accounts_info[0][select_server],accounts_info[1][select_server]]
+
+    connect_server_payload = [accounts_info[2][select_server],\
+                              accounts_info[0][select_server],\
+                              accounts_info[1][select_server],\
+                              playing_servers_info[0][select_server]]
     post_server(s, cookies, connect_server_payload)
 
 def post_login(s):
@@ -24,7 +30,9 @@ def post_login(s):
 
     post_url = "https://lobby-api.ogame.gameforge.com/users"
     login_request = s.post(post_url, data=payload)
-    print(login_request.status_code)
+
+    if login_request.status_code == 200:
+        print("Login... Done.")
 
     return login_request.cookies
 
@@ -90,6 +98,7 @@ def post_server(s, cookies, connect_server_payload):
     game_account_id = connect_server_payload[0]
     server_language = connect_server_payload[1]
     server_number = connect_server_payload[2]
+    server_name = connect_server_payload[3]
 
     url = ("https://lobby-api.ogame.gameforge.com/users/me/loginLink?id={}"
            "&server[language]={}"
@@ -99,4 +108,5 @@ def post_server(s, cookies, connect_server_payload):
     result = re.sub(pattern=".*url\":\"|\"}",repl="",string=res.text).replace("\\","")
 
     connection = s.get(result)
-    print(connection.status_code)
+    if connection.status_code == 200:
+        print("\nWelcome To {}!".format(server_name))
