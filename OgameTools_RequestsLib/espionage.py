@@ -6,6 +6,9 @@ import time
 import random
 
 def espionage(s):
+    print("-------------------------------------------------------------------")
+    print("Espionage".center(67))
+    print("-------------------------------------------------------------------")
     target_coordinates = get_target_info()
     post_url = "https://s1-en.ogame.gameforge.com/game/index.php?page=minifleet&ajax=1"
     
@@ -43,10 +46,11 @@ def get_target_info():
             return 0
 
     target_coordinates = []
+    print("Target Coordinates")
     for i in range(len(galaxys)):
         target_coordinates.append([galaxys[i],systems[i],positions[i]])
+        print(target_coordinates[i])
 
-    print(target_coordinates)
     return target_coordinates
 
 def get_fleet_token(s):
