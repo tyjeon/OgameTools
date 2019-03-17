@@ -9,6 +9,9 @@ import datetime
 import re
 
 def mail_to_csv(s):
+    print("-------------------------------------------------------------------")
+    print("Mail To Csv".center(67))
+    print("-------------------------------------------------------------------")
     html = []
     page_number = 1
     while True:
