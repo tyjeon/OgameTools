@@ -18,9 +18,14 @@ class Test(unittest.TestCase):
             "dfo@vomoto.com",
             "789456",
             "2",
+            #"1", # 기능 테스트
+            #"2",
+            "3",
+            "1", # 갤럭시툴 좌표 지정.
+            "1",
             "1",
             "2",
-            "3"
+            "9"
         ]
         
         with patch('builtins.input', side_effect=user_input_1):
