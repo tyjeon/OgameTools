@@ -12,7 +12,7 @@ def main():
 		while True:
 			choice = input("Espionage : 1 \n"
 						   "Mail To Csv : 2 \n"
-                           "GalaxyTool : 3 \n"
+						   "GalaxyTool : 3 \n"
 						   "Exit : Else \n")
 
 			try:
@@ -25,7 +25,7 @@ def main():
 			elif choice == 2:
 				mail_to_csv.mail_to_csv(s)
 			elif choice == 3:
-
+				galaxy_tool.galaxy_tool(s)
 			else:
 				break
 		
