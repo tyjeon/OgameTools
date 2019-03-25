@@ -19,7 +19,6 @@ def galaxy_tool(s):
 	start_system = int(input("Input Start System : "))
 	end_system = int(input("Input End System : "))
 
-	
 	filename = set_csv_title_row()
 
 	for i in range(start_galaxy,end_galaxy+1):
@@ -58,7 +57,7 @@ def set_csv_title_row():
 def parse_ogame_galaxy_source(text,galaxy_number,system_number,filename):
 		planet_number = []
 		planet_name = []
-		is_there_moon = []
+		moon = []
 		debris = []
 		user_name = []
 		user_rank = []
@@ -71,7 +70,7 @@ def parse_ogame_galaxy_source(text,galaxy_number,system_number,filename):
 
 		planet_number = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
 		planet_name=get_planet_name(text)
-		is_there_moon=get_moon(text)
+		moon=get_moon(text)
 		player_info=get_player_info(text)
 		user_name=player_info[0]
 		user_rank=player_info[1]
@@ -92,7 +91,7 @@ def parse_ogame_galaxy_source(text,galaxy_number,system_number,filename):
 											str(system_number),
 											str(planet_number[i]),
 											str(planet_name[i]),
-											str(is_there_moon[i]),
+											str(moon[i]),
 											str(user_name[i]),
 											str(user_rank[i]),
 											str(alliance_name[i]),
@@ -120,6 +119,10 @@ def get_planet_name(text):
 			planet_name.append(re.sub(".*textNormal..>|<.*","",planet_name_raw_text[j]))
 			j+=1
 
+	try:
+		planet_name.append(re.sub(".*textNormal..>|<.*","",planet_name_raw_text[j]))
+	except:
+		planet_name.append("")
 	return planet_name
 
 def get_moon(text):
@@ -140,55 +143,49 @@ def get_debris(text):
 	debris = []
 
 	for i in range(15):
-		if "js_no_action" in debris_raw_text[i]: # 데브리 존재. get_moon과 반대
+		try:
 			metal_in_debris = re.compile("(?<=Metal: )[\d\.]+").search(debris_raw_text[i]).group().replace(".","")
 			crystal_in_debris = re.compile("(?<=Crystal: )[\d\.]+").search(debris_raw_text[i]).group().replace(".","")
 			total_debris = int(metal_in_debris)+int(crystal_in_debris)
 			debris.append(total_debris) 
-		else:
+		except:
 			debris.append("")
 
 	return debris
 
 def get_player_info(text):
-	player_slot_regexp = re.compile("<td class=..playername.*?td>")
-	player_slot_raw_text = player_slot_regexp.findall(text)
+	player_regexp = re.compile("<td class=..playername.*?td>")
+	player_raw_text = player_regexp.findall(text)
 
 	player_name = []
 	player_rank = []
 
 	for i in range(15):
 		try:
-			player_name.append(re.compile("(?<=<span>).*?(?=<)").search(player_slot_raw_text[i]).group())
+			player_name.append(re.compile("(?<=<span>).*?(?=<)").search(player_raw_text[i]).group())
 		except:
 			player_name.append("")
-
-		if "Ranking" in player_slot_raw_text[i]:
-			player_rank.append(re.compile("\d+(?=<\\\/a>)").search(player_slot_raw_text[i]).group())
-		else:
+		try:
+			player_rank.append(re.compile("\d+(?=<\\\/a>)").search(player_raw_text[i]).group())
+		except:
 			player_rank.append("")
 
 	player_info = [player_name, player_rank]
 	return player_info
 
 def get_alliance_info(text):
-	alliance_slot_regexp = re.compile("allytag.*?td>")
-	alliance_slot_raw_text = alliance_slot_regexp.findall(text)
-
-	alliance_regexp = re.compile("div id=..alliance\d+.*?ul>")
+	alliance_regexp = re.compile("allytag.*?td>")
 	alliance_raw_text = alliance_regexp.findall(text)
 	alliance_name = []
 	alliance_rank = []
 	alliance_member = []
-	j = 0
 
 	for i in range(15):
-		if "allytagwrapper" in alliance_slot_raw_text[i]:
-			alliance_name.append(re.compile("(?<=h1>).*?(?=<)").search(alliance_raw_text[j]).group())
-			alliance_rank.append(re.compile("\d+(?=<\\\/a>)").search(alliance_raw_text[j]).group())
-			alliance_member.append(re.compile("(?<=Member: )\d+").search(alliance_raw_text[j]).group())
-			j+=1
-		else:
+		try:
+			alliance_name.append(re.compile("(?<=h1>).*?(?=<)").search(alliance_raw_text[i]).group())
+			alliance_rank.append(re.compile("\d+(?=<\\\/a>)").search(alliance_raw_text[i]).group())
+			alliance_member.append(re.compile("(?<=Member: )\d+").search(alliance_raw_text[i]).group())
+		except:
 			alliance_name.append("")
 			alliance_rank.append("")
 			alliance_member.append("")
