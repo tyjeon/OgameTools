@@ -31,7 +31,6 @@ def galaxy_tool(s):
 			galaxy_requests = s.post(post_url, data=payload)
 			galaxy_text.append(galaxy_requests.text)
 
-
 		for j in range(start_system,end_system+1):
 			parse_ogame_galaxy_source(galaxy_text[j-1],i,j,filename)
 
@@ -50,37 +49,38 @@ def set_csv_title_row():
 	filename = "Galaxy_"+year+"_"+month+"_"+day+"_"+hour+"_"+minute+".csv"
 	
 	with open("GalaxyTool/"+filename, encoding="utf-8",mode='a+') as f:
-		print("Gal,Sys,Pla,PlanetName,Moon,UserName,user_rank,alliance_name,alliance_rank,alliance_member,Vacation,Inactive,LongInactive,Recyclers",file=f)
+		print(
+			"Gal,"
+			"Sys,"
+			"Pla,"
+			"PlanetName,"
+			"Moon,"
+			"UserName,"
+			"UserRank,"
+			"AllianceName,"
+			"AllianceRank,"
+			"AllianceMember,"
+			"Status,"
+			"Debris"
+			,file=f)
 
 	return filename
 
 def parse_ogame_galaxy_source(text,galaxy_number,system_number,filename):
-		planet_number = []
-		planet_name = []
-		moon = []
-		debris = []
-		user_name = []
-		user_rank = []
-		alliance_name = []
-		alliance_rank = []
-		alliance_member = []
-		#status_vacation = []
-		#status_inactive = []
-		#status_longinactive = []
-
 		planet_number = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
 		planet_name=get_planet_name(text)
 		moon=get_moon(text)
+
 		player_info=get_player_info(text)
 		user_name=player_info[0]
 		user_rank=player_info[1]
+		status=player_info[2]
+
 		alliance_info = get_alliance_info(text)
 		alliance_name=alliance_info[0]
 		alliance_rank=alliance_info[1]
 		alliance_member=alliance_info[2]
-		#status_vacation.append(get_status(text,"status_abbr_vacation"))
-		#status_inactive.append(get_status(text,"status_abbr_inactive"))
-		#status_longinactive.append(get_status(text,"status_abbr_longinactive"))
+
 		debris=get_debris(text)
 
 		i = 0
@@ -97,10 +97,8 @@ def parse_ogame_galaxy_source(text,galaxy_number,system_number,filename):
 											str(alliance_name[i]),
 											str(alliance_rank[i]),
 											str(alliance_member[i]),
-											#status_vacation[i],
-											#status_inactive[i],
-											#status_longinactive[i],
-											str(debris[i]),
+											str(status[i]),
+											str(debris[i])
 										]),file=f)
 
 def get_planet_name(text):
@@ -159,6 +157,7 @@ def get_player_info(text):
 
 	player_name = []
 	player_rank = []
+	status = []
 
 	for i in range(15):
 		try:
@@ -170,7 +169,28 @@ def get_player_info(text):
 		except:
 			player_rank.append("")
 
-	player_info = [player_name, player_rank]
+		try:
+			if "status_abbr_vacation" in player_raw_text[i]:
+				status.append("Vacation")
+			else:
+				status.append("")
+		except:
+			try:
+				status[i] = ""
+			except:
+				status.append("")
+		try:
+			if "status_abbr_longinactive" in player_raw_text[i]:
+				status[i] += "LongInactive"
+			elif "status_abbr_inactive" in player_raw_text[i]:
+				status[i] += "Inactive"
+			else:
+				status[i] += ""
+		except:
+			status[i] += ""
+
+
+	player_info = [player_name, player_rank, status]
 	return player_info
 
 def get_alliance_info(text):
