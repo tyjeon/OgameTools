@@ -1,5 +1,7 @@
 import requests
 import re
+import json
+import pprint
 
 def login_ogame(s):
 	print("-------------------------------------------------------------------")
@@ -7,16 +9,10 @@ def login_ogame(s):
 	print("-------------------------------------------------------------------")
 	cookies = post_login(s)
 	
-	accounts_info = get_accounts_info(s)
-	playing_servers_info = get_playing_servers_info(s,accounts_info)
-	
-	show_servers(playing_servers_info,accounts_info)
-	select_server = int(input("\nSelect Server Number : ")) - 1
-
-	connect_server_payload = [accounts_info[2][select_server],\
-							  accounts_info[0][select_server],\
-							  accounts_info[1][select_server],\
-							  playing_servers_info[0][select_server]]
+	accounts_info_json = get_accounts_info(s)
+	playing_servers_info_json = get_playing_servers_info(s,accounts_info_json)
+	show_servers(accounts_info_json,playing_servers_info_json)
+	connect_server_payload = select_server_number(accounts_info_json,playing_servers_info_json)
 	post_server(s, cookies, connect_server_payload)
 
 def post_login(s):
@@ -37,62 +33,55 @@ def post_login(s):
 	return login_request.cookies
 
 def get_accounts_info(s):
-	accounts_json_url = "https://lobby-api.ogame.gameforge.com/users/me/accounts"
-	accounts_json = s.get(accounts_json_url)
-	
-	accounts = accounts_json.text.split("},")
-	
-	language = []
-	server_number = []
-	gameAccountId = []
-	user_name = []
+	accounts_info_request_url = "https://lobby-api.ogame.gameforge.com/users/me/accounts"
+	accounts_info_request = s.get(accounts_info_request_url)
+	accounts_info_json = json.loads(accounts_info_request.text)
+	return accounts_info_json
 
-	for i in range(0,len(accounts)):
-		if "language" in accounts[i]:
-			language.append(re.sub(".*language\":\"|\".*","",accounts[i]))
-			
-		if "number" in accounts[i]:
-			server_number.append(re.sub(".*number\":|\}.*","",accounts[i]))
-			
-		if "gameAccountId" in accounts[i]:
-			gameAccountId.append(re.sub(".*gameAccountId\":|,.*","",accounts[i]))
-			
-		if "name" in accounts[i]:
-			user_name.append(re.sub(".*name\":\"|\".*","",accounts[i]))
-	
-	accounts_info = [language,server_number,gameAccountId,user_name]
+def get_playing_servers_info(s,accounts_info_json):
+	playing_servers_info_json = []
+	servers_info_request_url = "https://lobby-api.ogame.gameforge.com/servers"
+	servers_info_request = s.get(servers_info_request_url)
+	servers_info_json = json.loads(servers_info_request.text)
 
-	return accounts_info
+	for j in range(len(accounts_info_json)):
+		for i in range(len(servers_info_json)):
+			if is_playing_server(accounts_info_json[j],servers_info_json[i]):
+				playing_servers_info_json.append({
+					'server_name':servers_info_json[i]['name'],
+					'player_count':servers_info_json[i]['playerCount'],
+					'players_online':servers_info_json[i]['playersOnline']})
+				break
 
-def get_playing_servers_info(s,accounts_info):
-	server_name = []
-	player_count = []
-	players_online = []
-	
-	servers_json = s.get("https://lobby-api.ogame.gameforge.com/servers")
-	servers = servers_json.text.split("},")
-
-	for i in range(0,len(servers)):
-		for j in range(0,len(accounts_info[0])):
-			player_info = [accounts_info[0][j],accounts_info[1][j]]
-			if is_playing_server(player_info, servers[i]):
-				server_name.append(re.sub(".*name\":\"|\".*","",servers[i]))
-				players_online.append(re.sub(".*playersOnline\":|,.*","",servers[i]))
-				player_count.append(re.sub(".*playerCount\":|,.*","",servers[i]))
-				
-	playing_servers_info = [server_name,player_count,players_online]
-	return playing_servers_info
+	return playing_servers_info_json
 
 def is_playing_server(player_info,server_info):
-	return "number\":{},".format(player_info[1]) in server_info and "language\":\"{}".format(player_info[0]) in server_info
+	if player_info['server']['language'] == server_info['language']:
+		if player_info['server']['number'] == server_info['number']:
+			return True
 
-def show_servers(playing_servers_info,accounts_info):
+	return False
+
+def show_servers(accounts_info_json,playing_servers_info_json):
 	print("\n{} {} {} {} {} {}".format("Number","Server".ljust(12),"Username".ljust(25),"Langauge","Online","Total"))
 		
-	for i in range(0,len(playing_servers_info[0])):
+	for i in range(0,len(accounts_info_json)):
 		print("{} {} {} {} {} {}".format(\
-			str(int(i)+1).ljust(6), playing_servers_info[0][i].ljust(12), accounts_info[3][i].ljust(25),\
-			accounts_info[0][i].ljust(8), playing_servers_info[1][i].ljust(6), playing_servers_info[2][i]))
+			str(int(i)+1).ljust(6),
+			playing_servers_info_json[i]['server_name'].ljust(12),
+			accounts_info_json[i]['name'].ljust(25),
+			accounts_info_json[i]['server']['language'].ljust(8),
+			str(playing_servers_info_json[i]['players_online']).ljust(6),
+			playing_servers_info_json[i]['player_count']))
+
+def select_server_number(accounts_info_json,playing_servers_info_json):
+	select_server = int(input("\nSelect Server Number : ")) - 1
+	connect_server_payload =[	accounts_info_json[select_server]['gameAccountId'],
+								accounts_info_json[select_server]['server']['language'],
+								accounts_info_json[select_server]['server']['number'],
+								playing_servers_info_json[select_server]['server_name']]
+
+	return connect_server_payload
 
 def post_server(s, cookies, connect_server_payload):
 	game_account_id = connect_server_payload[0]
