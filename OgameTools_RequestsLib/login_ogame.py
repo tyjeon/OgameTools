@@ -1,7 +1,6 @@
 import requests
 import re
 import json
-import pprint
 
 def login_ogame(s):
 	print("-------------------------------------------------------------------")
