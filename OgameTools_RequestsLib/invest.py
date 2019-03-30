@@ -12,30 +12,36 @@ fleet_type = [204,205,206,207,215,211,213,214,202,203,208,209,210,212]
 # 로켓,레약,레강,가우스,이온,플라즈마,보호소형,보호대형,IPM,ABM
 defence_type = [401,402,403,404,405,406,407,408,502,503]
 
-global resource_type
-global facility_type
-global research_type
-global fleet_type
-global defence_type
+def invest(s,target_type,amount,server_address):
+	init()
 
-def build(s,target_type,amount=1,server_address):
 	request_url_page_category = get_page_category(target_type)
-	request_url = "https://{}.ogame.gameforge.com/game/index.php?page={}&deprecated=1"
-				    .format(server_address,request_url_page_category)
+	request_url = \
+	"https://{}.ogame.gameforge.com/game/index.php?page={}&deprecated=1".format(server_address,request_url_page_category)
 
-	html = s.get("https://s1-en.ogame.gameforge.com/game/index.php?page=resources")
+	html = s.get("https://s1-en.ogame.gameforge.com/game/index.php?page="+request_url_page_category)
 	hidden_token = get_token(html)
 	payload = get_payload(target_type,hidden_token,amount)
 
-	build_request = s.post(request_url, data=payload)
+	invest_request = s.post(request_url, data=payload)
+	print(request_url)
+	print(payload)
+	print(invest_request.status_code)
 
-def get_token():
+def init():
+	global resource_type
+	global facility_type
+	global research_type
+	global fleet_type
+	global defence_type
+
+def get_token(html):
 	bs_object = BeautifulSoup(html.text,"html.parser")
 	token_raw_text = bs_object.find("input",{"name":"token"})
 	token = re.compile("(?<=value=\").*?(?=\")").search(str(token_raw_text)).group()
 	return token
 
-def is_type_with_amount_form(target_type):
+def get_payload(target_type,hidden_token,amount):
 	amount_form = fleet_type+defence_type
 
 	try:
@@ -43,17 +49,18 @@ def is_type_with_amount_form(target_type):
 		if int(target_type) in amount_form:
 		    payload = { "token":hidden_token,
 		    			"modus":"1",
-		    			"type":target_type}
+		    			"type":target_type,
+		    			"menge":""}
 		else:
 		    payload = { "token":hidden_token,
 		    			"modus":"1",
-		    			"type":target_type,
-		    			"menge":amount}
+		    			"type":target_type}
 		return payload
 	except:
 		return False
 
 def get_page_category(target_type):
+	target_type = int(target_type)
 	if target_type in resource_type:
 		return "resources"
 	elif target_type in resource_type:

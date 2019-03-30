@@ -14,6 +14,10 @@ def login_ogame(s):
 	connect_server_payload = select_server_number(accounts_info_json,playing_servers_info_json)
 	post_server(s, cookies, connect_server_payload)
 
+	server_address = "s{}-{}".format(connect_server_payload[2],connect_server_payload[1])
+
+	return server_address
+
 def post_login(s):
 	login_email = input("Input Email : ")
 	login_password = input("Input Password : ")
