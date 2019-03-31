@@ -55,7 +55,7 @@ def save_information(html, filename):
         planet_system = get_planet_system_in_mail(mailSource)
         planet_number = get_planet_number_in_mail(mailSource)
         player_name = get_player_name_in_mail(mailSource)
-        metal = get_data_in_mail(mailSource,"metal: ")
+        metal = get_data_in_mail(mailSource,"Metal: ")
         crystal = get_data_in_mail(mailSource,"Crystal: ")
         deuterium = get_data_in_mail(mailSource,"Deuterium: ")
         number_of_large_cargo = str(int(float(get_data_in_mail(mailSource,"Resources: "))/50000))
@@ -91,7 +91,7 @@ def get_planet_number_in_mail(mailSource):
     return util.parse_using_regexp(arguments_for_parsing)
 
 def get_player_name_in_mail(mailSource):
-    arguments_for_parsing=[mailSource,["span","class",re.compile("status_*")],"(<span.*\">|<\/span>)"]
+    arguments_for_parsing=[mailSource,["span","class",re.compile("status_*")],"(<span.*\">\s+|<\/span>)"]
     return util.parse_using_regexp(arguments_for_parsing)
 
 def get_data_in_mail(mailSource, string):
