@@ -36,7 +36,7 @@ def mail_to_csv(s,server_address):
             page_number += 1
             time.sleep(random.randrange(10,20)*1)
             
-    filename = set_espionage_csv_title_row()
+    filename = set_title()
     for i in range(0,len(html)):
         save_information(html[i], filename)
 
@@ -65,7 +65,7 @@ def save_information(html, filename):
         fleets = get_data_in_mail(mailSource,"Fleets: ")
 
 
-        with open(filename, encoding="utf-8",mode='a+') as f:
+        with open("Espionage/"+filename, encoding="utf-8",mode='a+') as f:
             print(",".join([planet_name,planet_galaxy,planet_system,planet_number,player_name,\
                             metal,crystal,deuterium,number_of_large_cargo,number_of_large_cargo_5x,\
                             total_resources,defence,fleets]),file=f)
@@ -105,7 +105,7 @@ def get_data_in_mail(mailSource, string):
 
     return data
 
-def set_espionage_csv_title_row():
+def set_title():
     if not os.path.isdir("Espionage"):
         os.mkdir("Espionage")
         
