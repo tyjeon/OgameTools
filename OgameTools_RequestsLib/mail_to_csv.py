@@ -9,7 +9,7 @@ import datetime
 import re
 import os
 
-def mail_to_csv(s):
+def mail_to_csv(s,server_address):
     print("-------------------------------------------------------------------")
     print("Mail To Csv".center(67))
     print("-------------------------------------------------------------------")

@@ -54,7 +54,7 @@ def get_target_info():
     return target_coordinates
 
 def get_fleet_token(s):
-    html = s.get("https://s1-en.ogame.gameforge.com/game/index.php?page=galaxy")
+    html = s.get("https://{}.ogame.gameforge.com/game/index.php?page=galaxy".format(server_address))
     bs_object = BeautifulSoup(html.text,"html.parser")
     scripts = bs_object.findAll("script",{"type":"text/javascript"})
 

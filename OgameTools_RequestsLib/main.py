@@ -26,7 +26,7 @@ def main():
 			elif choice == 2:
 				mail_to_csv.mail_to_csv(s,server_address)
 			elif choice == 3:
-				galaxy_tool.galaxy_tool(s)
+				galaxy_tool.galaxy_tool(s,server_address)
 			elif choice == 4:
 				target_type = input("입력")
 				amount = input("숫자 입력")

@@ -7,11 +7,11 @@ import re
 import time
 import datetime
 
-def galaxy_tool(s):
+def galaxy_tool(s,server_address):
 	print("-------------------------------------------------------------------")
 	print("GalaxyTool".center(67))
 	print("-------------------------------------------------------------------")
-	post_url = "https://s1-en.ogame.gameforge.com/game/index.php?page=galaxyContent&ajax=1"
+	post_url = "https://{}.ogame.gameforge.com/game/index.php?page=galaxyContent&ajax=1".format(server_address)
 
 	start_galaxy = int(input("Input Start Galaxy : "))
 	end_galaxy = int(input("Input End Galaxy : "))

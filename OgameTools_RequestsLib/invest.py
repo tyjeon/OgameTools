@@ -19,7 +19,7 @@ def invest(s,target_type,amount,server_address):
 	request_url = \
 	"https://{}.ogame.gameforge.com/game/index.php?page={}&deprecated=1".format(server_address,request_url_page_category)
 
-	html = s.get("https://s1-en.ogame.gameforge.com/game/index.php?page="+request_url_page_category)
+	html = s.get("https://{}.ogame.gameforge.com/game/index.php?page=".format(server_address)+request_url_page_category)
 	hidden_token = get_token(html)
 	payload = get_payload(target_type,hidden_token,amount)
 
