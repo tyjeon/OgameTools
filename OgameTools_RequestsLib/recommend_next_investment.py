@@ -110,7 +110,9 @@ def compare_techtree(argument_list):
 
 	for i in range(len(recommend_investment_type)):
 		if int(investment_level[recommend_investment_type[i]]) < recommend_investment_level[i]:
-			print("{}이 업그레이드 필요. ({}<{})".format(all_type[recommend_investment_type[i]],investment_level[i],recommend_investment_level[i]))
+			print("{}이 업그레이드 필요. ({}<{})".format(all_type[recommend_investment_type[i]],\
+														investment_level[recommend_investment_type[i]],
+														recommend_investment_level[i]))
 			ask_for_investment(s,server_address,recommend_investment_type[i])
 			break
 
