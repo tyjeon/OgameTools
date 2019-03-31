@@ -23,7 +23,7 @@ def mail_to_csv(s):
                    'ajax': '1'}
         headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'}
         
-        request_url = "https://s1-en.ogame.gameforge.com/game/index.php?page=messages"
+        request_url = "https://{}.ogame.gameforge.com/game/index.php?page=messages".format(server_address)
         html_source = s.post(request_url, data=payload, headers=headers)
         bs_object = BeautifulSoup(html_source.text, "html.parser")
         last_page = get_total_page_number(bs_object)

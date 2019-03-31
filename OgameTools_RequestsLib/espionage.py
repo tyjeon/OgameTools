@@ -5,12 +5,12 @@ import csv
 import time
 import random
 
-def espionage(s):
+def espionage(s,server_address):
     print("-------------------------------------------------------------------")
     print("Espionage".center(67))
     print("-------------------------------------------------------------------")
     target_coordinates = get_target_info()
-    post_url = "https://s1-en.ogame.gameforge.com/game/index.php?page=minifleet&ajax=1"
+    post_url = "https://{}.ogame.gameforge.com/game/index.php?page=minifleet&ajax=1".format(server_address)
     
     for i in range(len(target_coordinates)):
         fleet_token = get_fleet_token(s)

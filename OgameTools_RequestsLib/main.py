@@ -22,9 +22,9 @@ def main():
 				continue
 
 			if choice == 1:
-				espionage.espionage(s)
+				espionage.espionage(s,server_address)
 			elif choice == 2:
-				mail_to_csv.mail_to_csv(s)
+				mail_to_csv.mail_to_csv(s,server_address)
 			elif choice == 3:
 				galaxy_tool.galaxy_tool(s)
 			elif choice == 4:
