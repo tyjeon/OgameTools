@@ -24,9 +24,6 @@ def invest(s,target_type,amount,server_address):
 	payload = get_payload(target_type,hidden_token,amount)
 
 	invest_request = s.post(request_url, data=payload)
-	print(request_url)
-	print(payload)
-	print(invest_request.status_code)
 
 def init():
 	global resource_type
@@ -50,7 +47,7 @@ def get_payload(target_type,hidden_token,amount):
 		    payload = { "token":hidden_token,
 		    			"modus":"1",
 		    			"type":target_type,
-		    			"menge":""}
+		    			"menge":amount}
 		else:
 		    payload = { "token":hidden_token,
 		    			"modus":"1",

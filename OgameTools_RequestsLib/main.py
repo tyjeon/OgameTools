@@ -3,6 +3,7 @@ import espionage
 import mail_to_csv
 import galaxy_tool
 import invest
+import recommend_next_investment
 
 import requests
 
@@ -31,6 +32,8 @@ def main():
 				target_type = input("입력")
 				amount = input("숫자 입력")
 				invest.invest(s,target_type,amount,server_address)
+			elif choice == 5:
+				recommend_next_investment.recommend_next_investment(s,server_address)
 			else:
 				break
 		
