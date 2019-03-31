@@ -142,8 +142,9 @@ def get_debris(text):
 
 	for i in range(15):
 		try:
-			metal_in_debris = re.compile("(?<=Metal: )[\d\.]+").search(debris_raw_text[i]).group().replace(".","")
-			crystal_in_debris = re.compile("(?<=Crystal: )[\d\.]+").search(debris_raw_text[i]).group().replace(".","")
+			content_raw_text = re.compile("debris-content..>.*?<").findall(debris_raw_text[i])
+			metal_in_debris = re.compile("(?<=: ).*(?=<)").search(content_raw_text[0]).group().replace(".","")
+			crystal_in_debris = re.compile("(?<=: ).*(?=<)").search(content_raw_text[1]).group().replace(".","")
 			total_debris = int(metal_in_debris)+int(crystal_in_debris)
 			debris.append(total_debris) 
 		except:
@@ -204,7 +205,7 @@ def get_alliance_info(text):
 		try:
 			alliance_name.append(re.compile("(?<=h1>).*?(?=<)").search(alliance_raw_text[i]).group())
 			alliance_rank.append(re.compile("\d+(?=<\\\/a>)").search(alliance_raw_text[i]).group())
-			alliance_member.append(re.compile("(?<=Member: )\d+").search(alliance_raw_text[i]).group())
+			alliance_member.append(re.compile("\d+(?=<\\\/li>)").search(alliance_raw_text[i]).group())
 		except:
 			alliance_name.append("")
 			alliance_rank.append("")
