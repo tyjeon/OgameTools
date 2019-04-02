@@ -110,20 +110,11 @@ def get_resources(s,server_address):
 	html = s.get("https://{}.ogame.gameforge.com/game/index.php?page=resources".format(server_address))
 	bs_object = BeautifulSoup(html.text,"html.parser")
 
-	resources = {}
-
+	resources = {"metal" : 0, "crystal" : 0, "deuterium" : 0, "energy" : 0}
 	resources_raw_text = bs_object.find("ul",{"id":"resources"})
-	metal_raw_text = resources_raw_text.find("span",{"id":"resources_metal"})
-	resources["metal"] = re.sub("\D","",str(metal_raw_text))
-
-	crystal_raw_text = resources_raw_text.find("span",{"id":"resources_crystal"})
-	resources["crystal"] = re.sub("\D","",str(crystal_raw_text))
-
-	deuterium_raw_text = resources_raw_text.find("span",{"id":"resources_deuterium"})
-	resources["deuterium"] = re.sub("\D","",str(deuterium_raw_text))
-
-	energy_raw_text = resources_raw_text.find("span",{"id":"resources_energy"})
-	resources["energy"] = re.sub("\D","",str(energy_raw_text))
+	for key, value in resources.items():
+		raw_text = resources_raw_text.find("span",{"id":"resources_{}".format(key)})
+		resources[key] = re.sub("\D","",str(raw_text))
 
 	return resources
 
@@ -147,10 +138,18 @@ def get_cost(argument_list):
 		cost["energy"] = int(10*next_level*1.1**next_level - 10*(next_level-1)*1.1**(next_level-1))
 	elif investment_number == 3:
 		cost["energy"] = int(20*next_level*1.1**next_level - 20*(next_level-1)*1.1**(next_level-1))
+	elif investment_number ==33:
+		cost["energy"] = 1000*2**(next_level-1)
+	elif investment_number == 199:
+		cost["energy"] = 300000*3**(next_level-1)
 	else:
 		cost["energy"] = 0
 
-	cost["time"] = (cost["metal"]+cost["crystal"])*3600/float(2500*(1+float(investment_level[14]))*2**float(investment_level[15])*float(universe_speed))
+	if investment_number < 100:
+		cost["time"] = (cost["metal"]+cost["crystal"])*3600/float(2500*(1+float(investment_level[14]))*2**float(investment_level[15])*float(universe_speed))
+	else:
+		cost["time"] = (cost["metal"]+cost["crystal"])/(float(universe_speed)*1000*(1+float(investment_level[31])))
+
 	cost["time"] = int(cost["time"])
 
 	return cost
@@ -159,10 +158,73 @@ def get_investment_cost_element(investment_number): # TODO 딕셔너리 완성�
 	base_cost_element = {}
 	base_cost_element[1] = {"metal" : 60, "crystal" : 15, "deuterium" : 0, "base" : 1.5}
 	base_cost_element[2] = {"metal" : 48, "crystal" : 24, "deuterium" : 0, "base" : 1.6}
+	base_cost_element[3] = {"metal" : 225, "crystal" : 75, "deuterium" : 0, "base" : 1.5}
+	base_cost_element[4] = {"metal" : 75, "crystal" : 30, "deuterium" : 0, "base" : 1.5}
+	base_cost_element[12] = {"metal" : 900, "crystal" : 360, "deuterium" : 180, "base" : 1.8}
 
+	base_cost_element[22] = {"metal" : 1000, "crystal" : 0, "deuterium" : 0, "base" : 2}
+	base_cost_element[23] = {"metal" : 1000, "crystal" : 500, "deuterium" : 0, "base" : 2}
+	base_cost_element[24] = {"metal" : 1000, "crystal" : 1000, "deuterium" : 0, "base" : 2}
+
+	base_cost_element[14] = {"metal" : 400, "crystal" : 120, "deuterium" : 200, "base" : 2}
+	base_cost_element[21] = {"metal" : 400, "crystal" : 200, "deuterium" : 100, "base" : 2}
+	base_cost_element[31] = {"metal" : 200, "crystal" : 400, "deuterium" : 200, "base" : 2}
+	base_cost_element[34] = {"metal" : 20000, "crystal" : 40000, "deuterium" : 0, "base" : 2}
+	base_cost_element[44] = {"metal" : 20000, "crystal" : 20000, "deuterium" : 1000, "base" : 2}
+	base_cost_element[15] = {"metal" : 1000000, "crystal" : 500000, "deuterium" : 100000, "base" : 2}
+
+	base_cost_element[33] = {"metal" : 0, "crystal" : 50000, "deuterium" : 100000, "base" : 2}
+	base_cost_element[36] = {"metal" : 200, "crystal" : 50, "deuterium" : 50, "base" : 2}
+
+	base_cost_element[113] = {"metal" : 0, "crystal" : 800, "deuterium" : 400, "base" : 2}
+	base_cost_element[120] = {"metal" : 200, "crystal" : 100, "deuterium" : 0, "base" : 2}
+	base_cost_element[121] = {"metal" : 1000, "crystal" : 300, "deuterium" : 100, "base" : 2}
+	base_cost_element[114] = {"metal" : 0, "crystal" : 4000, "deuterium" : 2000, "base" : 2}
+	base_cost_element[122] = {"metal" : 2000, "crystal" : 4000, "deuterium" : 1000, "base" : 2}
+
+	base_cost_element[115] = {"metal" : 400, "crystal" : 0, "deuterium" : 600, "base" : 2}
+	base_cost_element[117] = {"metal" : 2000, "crystal" : 4000, "deuterium" : 600, "base" : 2}
+	base_cost_element[118] = {"metal" : 10000, "crystal" : 20000, "deuterium" : 6000, "base" : 2}
+	base_cost_element[106] = {"metal" : 200, "crystal" : 1000, "deuterium" : 200, "base" : 2}
+	base_cost_element[108] = {"metal" : 0, "crystal" : 400, "deuterium" : 600, "base" : 2}
+
+	base_cost_element[124] = {"metal" : 4000, "crystal" : 8000, "deuterium" : 4000, "base" : 1.75}
+	base_cost_element[123] = {"metal" : 240000, "crystal" : 400000, "deuterium" : 160000, "base" : 2}
+	base_cost_element[199] = {"metal" : 0, "crystal" : 0, "deuterium" : 0, "base" : 2}
+	base_cost_element[109] = {"metal" : 800, "crystal" : 200, "deuterium" : 0, "base" : 2}
+	base_cost_element[110] = {"metal" : 200, "crystal" : 600, "deuterium" : 0, "base" : 2}
+
+	base_cost_element[111] = {"metal" : 1000, "crystal" : 0, "deuterium" : 0, "base" : 2}
+	
 	return base_cost_element[investment_number]
 	
 
-def show_receipt(resources,cost): # TODO 여기 PPRINT나 LJUST/RJUST로 꾸미기.
-	print(resources)
-	print(cost)
+def show_receipt(resources,cost):
+	length = {"metal":5,"crystal":7,"deuterium":9,"energy":6}
+	for key in resources:
+		if len(resources[key]) < len(str(cost[key])):
+			if length[key] < len(str(cost[key])):
+				length[key] = len(str(cost[key]))
+		else:
+			if length[key] < len(resources[key]):
+				length[key] = len(resources[key])
+
+	print("     {:>{}}     {:>{}}     {:>{}}     {:>{}}".format("Metal",length["metal"],
+																"Crystal",length["crystal"],
+																"Deuterium",length["deuterium"],
+																"Energy",length["energy"]))
+	print("     {:>{}}     {:>{}}     {:>{}}     {:>{}}".format(resources["metal"],length["metal"],
+																resources["crystal"],length["crystal"],
+																resources["deuterium"],length["deuterium"],
+																resources["energy"],length["energy"]))
+	print("-    {:>{}}     {:>{}}     {:>{}}     {:>{}}".format(cost["metal"],length["metal"],
+																cost["crystal"],length["crystal"],
+																cost["deuterium"],length["deuterium"],
+																cost["energy"],length["energy"],))
+
+	print("".center(20+length["metal"]+length["crystal"]+length["deuterium"]+length["energy"],"-"))
+
+	print("     {:>{}}     {:>{}}     {:>{}}     {:>{}}".format(int(resources["metal"])-cost["metal"],length["metal"],
+																int(resources["crystal"])-cost["crystal"],length["crystal"],
+																int(resources["deuterium"])-cost["deuterium"],length["deuterium"],
+																int(resources["energy"])-cost["energy"],length["energy"]))
