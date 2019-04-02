@@ -100,12 +100,6 @@ def get_uninvested_investment_number(argument_list):
 
 	return recommend_investment_number[i]
 
-def ask_for_investment(s,server_address,target_investment_number):
-	invest_question = input("해당 시설(연구)을 개선합니까?(1/0)")
-
-	if int(invest_question) == 1:
-		invest.invest(s,target_investment_number,0,server_address)
-
 def get_resources(s,server_address):
 	html = s.get("https://{}.ogame.gameforge.com/game/index.php?page=resources".format(server_address))
 	bs_object = BeautifulSoup(html.text,"html.parser")
@@ -197,7 +191,6 @@ def get_investment_cost_element(investment_number): # TODO 딕셔너리 완성�
 	base_cost_element[111] = {"metal" : 1000, "crystal" : 0, "deuterium" : 0, "base" : 2}
 	
 	return base_cost_element[investment_number]
-	
 
 def show_receipt(resources,cost):
 	length = {"metal":5,"crystal":7,"deuterium":9,"energy":6}
@@ -228,3 +221,9 @@ def show_receipt(resources,cost):
 																int(resources["crystal"])-cost["crystal"],length["crystal"],
 																int(resources["deuterium"])-cost["deuterium"],length["deuterium"],
 																int(resources["energy"])-cost["energy"],length["energy"]))
+
+def ask_for_investment(s,server_address,target_investment_number):
+	invest_question = input("해당 시설(연구)을 개선합니까?(1/0)")
+
+	if int(invest_question) == 1:
+		invest.invest(s,target_investment_number,0,server_address)
