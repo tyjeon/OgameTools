@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import re
+import time
 
 # 메탈,크리,듀테,태발,메탱,크탱,듀탱,핵융
 resource_type = [1,2,3,4,22,23,24,12]
@@ -12,8 +13,10 @@ fleet_type = [204,205,206,207,215,211,213,214,202,203,208,209,210,212]
 # 로켓,레약,레강,가우스,이온,플라즈마,보호소형,보호대형,IPM,ABM
 defence_type = [401,402,403,404,405,406,407,408,502,503]
 
-def invest(s,target_type,amount,server_address):
+def invest(s,target_type,amount,server_address,queue_wait_time=0):
 	init()
+
+	wait_queue(queue_wait_time)
 
 	request_url_page_category = get_page_category(target_type)
 	request_url = \
@@ -31,6 +34,9 @@ def init():
 	global research_type
 	global fleet_type
 	global defence_type
+
+def wait_queue(queue_wait_time):
+	time.sleep(queue_wait_time)
 
 def get_token(html):
 	bs_object = BeautifulSoup(html.text,"html.parser")

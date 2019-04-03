@@ -10,6 +10,8 @@ import invest
 
 from bs4 import BeautifulSoup
 import re
+import time
+import threading
 
 def recommend_next_investment(s,server_address):
 	investment_level = {}
@@ -120,7 +122,7 @@ def get_cost(argument_list):
 	investment_level = argument_list[4]
 
 
-	html= s.get("https://s1-en.ogame.gameforge.com/game/index.php?page=overview")
+	html = s.get("https://{}.ogame.gameforge.com/game/index.php?page=overview".format(server_address))
 	universe_speed = int(re.compile("(?<=ogame-universe-speed\" content=\")\d+").search(html.text).group())
 	base_cost_element = get_investment_cost_element(investment_number)
 
@@ -226,4 +228,26 @@ def ask_for_investment(s,server_address,target_investment_number):
 	invest_question = input("해당 시설(연구)을 개선합니까?(1/0)")
 
 	if int(invest_question) == 1:
-		invest.invest(s,target_investment_number,0,server_address)
+		make_invest_queue(s,target_investment_number,server_address)
+
+def make_invest_queue(s,target_investment_number,server_address):
+	html = s.get("https://{}.ogame.gameforge.com/game/index.php?page=overview".format(server_address))
+	bs_object = BeautifulSoup(html.text,"html.parser")
+
+	if target_investment_number < 100:
+		try:
+			left_duration = int(bs_object.find("span",{"id":"Countdown"}))
+			print("다른 건설이 이미 진행중이므로 {}초 이후에 진행합니다.".format(left_duration))
+		except:
+			left_duration = 0
+		
+	else:
+		try:
+			left_duration = int(bs_object.find("span",{"id":"researchCountdown"}))
+			print("다른 연구가 이미 진행중이므로 {}초 이후에 진행합니다.".format(left_duration))
+		except:
+			left_duration = 0
+
+
+	invest_queue_thread = threading.Thread(target=invest.invest, args = (s,target_investment_number,0,server_address,left_duration))
+	invest_queue_thread.start()
