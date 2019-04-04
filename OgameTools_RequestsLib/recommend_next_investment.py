@@ -82,7 +82,7 @@ def get_research_investment_level(s,server_address,investment_level):
 	bs_object = BeautifulSoup(html.text,"html.parser")
 
 	for key, value in research_type.items():
-		research_raw_text = bs_object.find("div",{"class":"item_box research{}".format(key)})
+		research_raw_text = bs_object.find("a",{"id":"details{}".format(key)})
 		level_raw_text = research_raw_text.find("span",{"class":"level"})
 		investment_level[key] = re.compile("\d+").search(str(level_raw_text)).group()
 
@@ -232,18 +232,19 @@ def ask_for_investment(s,server_address,target_investment_number):
 
 def make_invest_queue(s,target_investment_number,server_address):
 	html = s.get("https://{}.ogame.gameforge.com/game/index.php?page=overview".format(server_address))
-	bs_object = BeautifulSoup(html.text,"html.parser")
 
 	if target_investment_number < 100:
 		try:
-			left_duration = int(bs_object.find("span",{"id":"Countdown"}))
+			left_duration_raw_text = re.compile("(?=Cache\(\"Countdown\"\),).*?https").search(html.text).group()
+			left_duration = int(re.compile("\d+").search(left_duration_raw_text).group())
 			print("다른 건설이 이미 진행중이므로 {}초 이후에 진행합니다.".format(left_duration))
 		except:
 			left_duration = 0
 		
 	else:
 		try:
-			left_duration = int(bs_object.find("span",{"id":"researchCountdown"}))
+			left_duration_raw_text = re.compile("(?=Cache\(\"researchCountdown\"\),).*?https").search(html.text).group()
+			left_duration = int(re.compile("\d+").search(left_duration_raw_text).group())
 			print("다른 연구가 이미 진행중이므로 {}초 이후에 진행합니다.".format(left_duration))
 		except:
 			left_duration = 0
