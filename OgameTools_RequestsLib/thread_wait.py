@@ -47,10 +47,20 @@ def wait_schedule(invest_type,wait_time,lock):
 	while True: # 이부분 '컨디션'으로 처리 https://github.com/taeyongjeon/OgameTools/issues/19
 		if is_my_turn(invest_type,filename):
 			print("시작 : 타입 {} {}".format(invest_type,filename))
-			time.sleep(wait_time) # 이부분을 파일과 엮어야 할 듯. Lock 걸어두고.
-			with lock:
-				os.remove("temp/{}".format(filename))
-			break
+			while True:
+				time.sleep(1) # 이부분을 파일과 엮어야 할 듯. Lock 걸어두고.
+				with lock:
+					try:
+						with open("temp/{}".format(filename),encoding="utf-8",mode="r") as f:
+							duration = int(f.read())
+							if duration == 0:
+								os.remove("temp/{}".format(filename))
+								break
+							duration = duration - 1
+						with open("temp/{}".format(filename),encoding="utf-8",mode="w") as f:
+							f.write(str(duration))
+					except:
+						break
 		else:
 			time.sleep(1)
 
